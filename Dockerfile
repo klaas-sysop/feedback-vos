@@ -4,7 +4,7 @@
 #   docker build -f Dockerfile -t feedback-vos-example .
 #
 # Run the container:
-#   docker run -p 3000:3000 --env-file example/.env.local feedback-vos-example
+#   docker run -p 80:80 --env-file example/.env.local feedback-vos-example
 #
 # Note: Make sure to set environment variables (NEXT_PUBLIC_GITHUB_TOKEN, etc.)
 #       either via --env-file or -e flags
@@ -65,11 +65,15 @@ COPY --from=next-builder /app/.next/static ./.next/static
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
 
+# Allow non-root user to bind to port 80
+RUN apk add --no-cache libcap && \
+    setcap cap_net_bind_service=+ep /usr/local/bin/node
+
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 80
 
-ENV PORT=3000
+ENV PORT=80
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
