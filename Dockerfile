@@ -31,19 +31,41 @@ WORKDIR /app
 COPY --from=parent-builder /app/dist ./feedback-vos/dist
 COPY --from=parent-builder /app/package.json ./feedback-vos/package.json
 
-# Recreate the directory structure to match local development
-# Local: example/app/components/FeedbackWidget.tsx imports ../../../src/components/Widget
-# This means: from example/app/components/ go up 3 levels to root, then src/components/Widget
-# So we need: /app/src/ (parent src) and /app/example/app/ (example app)
-COPY --from=parent-builder /app/src ./src
-
-# Copy example app files into example directory to match local structure
+# Copy example app files first
 COPY example/package.json example/package-lock.json ./example/
 COPY example/tsconfig.json ./example/
-COPY example/next.config.js ./example/
 COPY example/tailwind.config.js ./example/
 COPY example/postcss.config.js ./example/
 COPY example/app ./example/app
+
+# Copy src directory to match the expected import path
+# The import ../../../src/components/Widget from example/app/components/FeedbackWidget.tsx
+# means: from /app/example/app/components/ go up 3 levels to /app/, then src/components/Widget
+# So we need /app/src/ to exist
+COPY --from=parent-builder /app/src ./src
+
+# Create a modified next.config.js that helps with module resolution
+# Disable Turbopack and use webpack instead, which has better support for external directories
+RUN cat > ./example/next.config.js << 'EOF'
+/** @type {import('next').NextConfig} */
+const path = require('path');
+const nextConfig = {
+  output: 'standalone',
+  experimental: {
+    externalDir: true,
+  },
+  // Add resolve configuration for webpack to find src directory
+  webpack: (config, { isServer }) => {
+    config.resolve.modules = [
+      ...(config.resolve.modules || []),
+      path.resolve(__dirname, '..'),
+    ];
+    return config;
+  },
+  // Remove turbopack config to use webpack instead
+}
+module.exports = nextConfig
+EOF
 
 # Change to example directory for build
 WORKDIR /app/example
