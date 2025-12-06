@@ -1,7 +1,7 @@
 {
   "name": "feedback-vos",
   "version": "1.0.0",
-  "description": "A beautiful feedback widget for Next.js with Notion and GitHub integrations",
+  "description": "A beautiful feedback widget for Next.js with GitHub Issues integration",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -25,8 +25,8 @@
     "feedback",
     "widget",
     "nextjs",
-    "notion",
     "github",
+    "github-issues",
     "react",
     "typescript"
   ],

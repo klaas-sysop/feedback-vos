@@ -6,10 +6,11 @@ import 'feedback-vos/styles'
 export function FeedbackWidget() {
   return (
     <Widget
-      integration="notion"
-      notionConfig={{
-        apiKey: process.env.NEXT_PUBLIC_NOTION_API_KEY || '',
-        databaseId: process.env.NEXT_PUBLIC_NOTION_DATABASE_ID || '',
+      integration="github"
+      githubConfig={{
+        token: process.env.NEXT_PUBLIC_GITHUB_TOKEN!,
+        owner: 'klaas-sysop',
+        repo: 'npm-feedback-vos',
       }}
       position="bottom-right"
     />

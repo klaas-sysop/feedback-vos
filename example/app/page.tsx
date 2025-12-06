@@ -17,23 +17,24 @@ export default function Home() {
             <li>Click to open feedback form</li>
             <li>Select feedback type (Bug, Idea, Other)</li>
             <li>Add comment and optional screenshot</li>
-            <li>Submit feedback to Notion (if configured)</li>
+            <li>Submit feedback to GitHub Issues</li>
           </ul>
         </div>
 
         <div className="bg-zinc-800 rounded-lg p-6">
           <h2 className="text-2xl font-semibold mb-4">Configuration</h2>
           <p className="text-zinc-300 mb-4">
-            To test with Notion integration, create a <code className="bg-zinc-900 px-2 py-1 rounded">.env.local</code> file with:
+            To test with GitHub integration, create a <code className="bg-zinc-900 px-2 py-1 rounded">.env.local</code> file with:
           </p>
           <pre className="bg-zinc-900 p-4 rounded overflow-x-auto">
             <code className="text-sm">
-{`NEXT_PUBLIC_NOTION_API_KEY=your_notion_api_key
-NEXT_PUBLIC_NOTION_DATABASE_ID=your_database_id`}
+{`NEXT_PUBLIC_GITHUB_TOKEN=your_github_token
+NEXT_PUBLIC_GITHUB_OWNER=your-username
+NEXT_PUBLIC_GITHUB_REPO=your-repo-name`}
             </code>
           </pre>
           <p className="text-zinc-400 text-sm mt-4">
-            See the main README.md for instructions on setting up Notion integration.
+            See the main README.md for instructions on setting up GitHub integration.
           </p>
         </div>
       </div>

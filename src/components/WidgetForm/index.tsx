@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { FeedbackTypeStep } from './Steps/FeedbackTypeStep';
 import { FeedbackContentStep } from './Steps/FeedbackContentStep';
 import { FeedbackSuccessStep } from './Steps/FeedbackSuccessStep';
-import { FeedbackType, NotionConfig, GitHubConfig } from '../../types';
+import { FeedbackType, GitHubConfig } from '../../types';
 
 export const feedbackTypes = {
   BUG: {
@@ -34,12 +34,11 @@ export const feedbackTypes = {
 export type { FeedbackType };
 
 interface WidgetFormProps {
-  integration: 'notion' | 'github';
-  notionConfig?: NotionConfig;
-  githubConfig?: GitHubConfig;
+  integration: 'github';
+  githubConfig: GitHubConfig;
 }
 
-export function WidgetForm({ integration, notionConfig, githubConfig }: WidgetFormProps) {
+export function WidgetForm({ integration, githubConfig }: WidgetFormProps) {
   const [feedbackType, setFeedbackType] = useState<FeedbackType | null>(null)
   const [feedbackSent, setFeedbackSent] = useState(false)
   
@@ -62,7 +61,6 @@ export function WidgetForm({ integration, notionConfig, githubConfig }: WidgetFo
               onFeedbackRestartRequest={handleRestartFeedback}
               onFeedbackSent={() => setFeedbackSent(true)}
               integration={integration}
-              notionConfig={notionConfig}
               githubConfig={githubConfig}
             />
           )}

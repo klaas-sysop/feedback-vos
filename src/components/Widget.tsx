@@ -7,7 +7,6 @@ import { WidgetProps } from '../types';
 
 export function Widget({ 
   integration, 
-  notionConfig, 
   githubConfig,
   position = 'bottom-right'
 }: WidgetProps) {
@@ -23,7 +22,6 @@ export function Widget({
       <Popover.Panel>
         <WidgetForm 
           integration={integration}
-          notionConfig={notionConfig}
           githubConfig={githubConfig}
         />
       </Popover.Panel>

@@ -6,17 +6,15 @@ import { FeedbackType, feedbackTypes } from '..';
 import { CloseButton } from '../../CloseButton';
 import {Loading} from '../../Loading';
 import { ScreenshotButton } from '../../ScreenshotButton';
-import { sendToNotion } from '../../../lib/integrations/notion';
 import { sendToGitHub } from '../../../lib/integrations/github';
-import { NotionConfig, GitHubConfig } from '../../../types';
+import { GitHubConfig } from '../../../types';
 
 interface FeedbackContentStepProps {
   feedbackType: FeedbackType;
   onFeedbackRestartRequest: () => void;
   onFeedbackSent: () => void;
-  integration: 'notion' | 'github';
-  notionConfig?: NotionConfig;
-  githubConfig?: GitHubConfig;
+  integration: 'github';
+  githubConfig: GitHubConfig;
 }
 
 export function FeedbackContentStep({
@@ -24,7 +22,6 @@ export function FeedbackContentStep({
   onFeedbackRestartRequest,
   onFeedbackSent,
   integration,
-  notionConfig,
   githubConfig,
 }: FeedbackContentStepProps) {
   const [screenshot, setScreenshot] = useState<string | null>(null);
@@ -43,9 +40,7 @@ export function FeedbackContentStep({
         screenshot,
       };
 
-      if (integration === 'notion' && notionConfig) {
-        await sendToNotion(notionConfig, feedbackData);
-      } else if (integration === 'github' && githubConfig) {
+      if (integration === 'github') {
         await sendToGitHub(githubConfig, feedbackData);
       } else {
         throw new Error('Invalid integration configuration');
