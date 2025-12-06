@@ -27,9 +27,9 @@ RUN npm ci && npm run build
 FROM node:20-alpine AS next-builder
 WORKDIR /app
 
-# Copy parent package build output
-COPY --from=parent-builder /app/dist ./dist
-COPY --from=parent-builder /app/package.json ./package.json
+# Copy parent package build output to a local package directory
+COPY --from=parent-builder /app/dist ./feedback-vos/dist
+COPY --from=parent-builder /app/package.json ./feedback-vos/package.json
 
 # Copy example app files
 COPY example/package.json example/package-lock.json ./
@@ -39,8 +39,8 @@ COPY example/tailwind.config.js ./
 COPY example/postcss.config.js ./
 COPY example/app ./app
 
-# Install example dependencies
-RUN npm ci
+# Install the local feedback-vos package and example dependencies
+RUN npm install ./feedback-vos && npm ci
 
 # Build Next.js app
 RUN npm run build
