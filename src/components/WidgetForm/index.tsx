@@ -67,14 +67,6 @@ export function WidgetForm({ integration, githubConfig }: WidgetFormProps) {
         </>
       )}
       <footer className="text-xs text-neutral-400">
-        Built with 💜 by{' '}
-        <a
-          className="underline underline-offset-2"
-          href="https://github.com/klaas-sysop"
-        >
-          Klaas Sysop
-        </a>
-        {' '}|{' '}
         <a
           className="underline underline-offset-2"
           href="https://vossendesign.nl"

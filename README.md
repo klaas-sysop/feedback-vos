@@ -100,4 +100,4 @@ MIT License
 
 ---
 
-Built with 💜 by [Klaas Sysop](https://github.com/klaas-sysop) | [Vossen Design](https://vossendesign.nl)
+[Vossen Design](https://vossendesign.nl)
