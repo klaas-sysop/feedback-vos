@@ -187,8 +187,8 @@ RUN node /app/patch-server.js || echo "Warning: Could not patch server.js"
 
 # Backup original server.js and create a wrapper that forces PORT=80
 RUN if [ -f server.js ]; then \
-      mv server.js server.js.original && \
-      cat > server.js << 'SERVEREOF' && chown nextjs:nodejs server.js
+      mv server.js server.js.original; \
+      cat > server.js << 'SERVEREOF'
 // Wrapper for Next.js standalone server.js
 // This ensures PORT=80 is used
 
@@ -204,6 +204,7 @@ console.log('HOSTNAME:', process.env.HOSTNAME);
 // This ensures PORT env var is set before the server initializes
 require('./server.js.original');
 SERVEREOF
+      chown nextjs:nodejs server.js; \
     fi
 
 USER nextjs
