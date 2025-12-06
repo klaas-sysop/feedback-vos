@@ -1,6 +1,6 @@
 {
   "name": "feedback-vos",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "A beautiful feedback widget for Next.js with GitHub Issues integration",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
