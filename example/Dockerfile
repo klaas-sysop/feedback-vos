@@ -1,0 +1,75 @@
+# Dockerfile for Feedback Vos Example Site
+# 
+# Build from the project root directory:
+#   docker build -f example/Dockerfile -t feedback-vos-example .
+#
+# Run the container:
+#   docker run -p 3000:3000 --env-file example/.env.local feedback-vos-example
+#
+# Note: Make sure to set environment variables (NEXT_PUBLIC_GITHUB_TOKEN, etc.)
+#       either via --env-file or -e flags
+
+# Stage 1: Build parent package
+FROM node:20-alpine AS parent-builder
+WORKDIR /app
+
+# Copy parent package files
+COPY package.json package-lock.json ./
+COPY tsconfig.json ./
+COPY src ./src
+COPY tsup.config.ts* ./
+
+# Install dependencies and build parent package
+RUN npm ci && npm run build
+
+# Stage 2: Build Next.js app
+FROM node:20-alpine AS next-builder
+WORKDIR /app
+
+# Copy parent package build output
+COPY --from=parent-builder /app/dist ./dist
+COPY --from=parent-builder /app/package.json ./package.json
+
+# Copy example app files
+COPY example/package.json example/package-lock.json ./
+COPY example/tsconfig.json ./
+COPY example/next.config.js ./
+COPY example/tailwind.config.js ./
+COPY example/postcss.config.js ./
+COPY example/app ./app
+
+# Install example dependencies
+RUN npm ci
+
+# Build Next.js app
+RUN npm run build
+
+# Stage 3: Production runtime
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy necessary files from builder
+COPY --from=next-builder /app/.next/standalone ./
+COPY --from=next-builder /app/.next/static ./.next/static
+
+# Copy public directory if it exists (optional - uncomment if you have a public directory)
+# COPY --from=next-builder /app/public ./public
+
+# Set correct permissions
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]
+
