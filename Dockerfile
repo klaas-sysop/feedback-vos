@@ -45,7 +45,7 @@ COPY example/app ./example/app
 COPY --from=parent-builder /app/src ./src
 
 # Create a modified next.config.js that helps with module resolution
-# Disable Turbopack and use webpack instead, which has better support for external directories
+# Force webpack instead of Turbopack for better external directory support
 RUN cat > ./example/next.config.js << 'EOF'
 /** @type {import('next').NextConfig} */
 const path = require('path');
@@ -62,7 +62,8 @@ const nextConfig = {
     ];
     return config;
   },
-  // Remove turbopack config to use webpack instead
+  // Add empty turbopack config to silence the warning, but we'll use webpack
+  turbopack: {},
 }
 module.exports = nextConfig
 EOF
@@ -74,8 +75,8 @@ WORKDIR /app/example
 # Note: feedback-vos is in /app/feedback-vos, so we need to go up one level
 RUN npm install ../feedback-vos && npm ci
 
-# Build Next.js app
-RUN npm run build
+# Build Next.js app using webpack instead of Turbopack
+RUN npm run build -- --webpack
 
 # Stage 3: Production runtime
 FROM node:20-alpine AS runner
