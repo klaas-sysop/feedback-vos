@@ -31,6 +31,13 @@ WORKDIR /app
 COPY --from=parent-builder /app/dist ./feedback-vos/dist
 COPY --from=parent-builder /app/package.json ./feedback-vos/package.json
 
+# Copy parent package.json and package-lock.json to install dependencies for src directory
+COPY --from=parent-builder /app/package.json ./package.json
+COPY --from=parent-builder /app/package-lock.json ./package-lock.json
+
+# Install parent package dependencies so webpack can resolve them for src directory
+RUN npm ci --omit=dev
+
 # Copy example app files first
 COPY example/package.json example/package-lock.json ./example/
 COPY example/tsconfig.json ./example/
@@ -54,11 +61,12 @@ const nextConfig = {
   experimental: {
     externalDir: true,
   },
-  // Add resolve configuration for webpack to find src directory
+  // Add resolve configuration for webpack to find src directory and its dependencies
   webpack: (config, { isServer }) => {
     config.resolve.modules = [
       ...(config.resolve.modules || []),
       path.resolve(__dirname, '..'),
+      path.resolve(__dirname, '../node_modules'),
     ];
     return config;
   },
