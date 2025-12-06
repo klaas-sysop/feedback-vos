@@ -2,12 +2,13 @@
 
 import {ArrowLeft} from 'phosphor-react';
 import { FormEvent, useState } from 'react';
-import { FeedbackType, feedbackTypes } from '..';
+import { FeedbackType, getFeedbackTypes } from '..';
 import { CloseButton } from '../../CloseButton';
 import {Loading} from '../../Loading';
 import { ScreenshotButton } from '../../ScreenshotButton';
 import { sendToGitHub } from '../../../lib/integrations/github';
 import { GitHubConfig } from '../../../types';
+import { Language, getTranslations } from '../../../lib/translations';
 
 interface FeedbackContentStepProps {
   feedbackType: FeedbackType;
@@ -15,6 +16,7 @@ interface FeedbackContentStepProps {
   onFeedbackSent: () => void;
   integration: 'github';
   githubConfig: GitHubConfig;
+  language: Language;
 }
 
 export function FeedbackContentStep({
@@ -23,7 +25,10 @@ export function FeedbackContentStep({
   onFeedbackSent,
   integration,
   githubConfig,
+  language,
 }: FeedbackContentStepProps) {
+  const t = getTranslations(language);
+  const feedbackTypes = getFeedbackTypes(language);
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const feedbackTypeData = feedbackTypes[feedbackType];
   const [comment, setComment] = useState('');
@@ -52,7 +57,7 @@ export function FeedbackContentStep({
       console.error('Error sending feedback:', error);
       setIsSendingFeedback(false);
       // TODO: Show error message to user
-      alert('Failed to send feedback. Please try again.');
+      alert(t.content.error);
     }
   }
   
@@ -75,7 +80,7 @@ export function FeedbackContentStep({
           />
           {feedbackTypeData.title}
         </span>
-        <CloseButton className="absolute top-5 right-5" />
+        <CloseButton className="absolute top-5 right-5" title={t.form.closeButton} />
       </header>
       <form onSubmit={handleSubmitFeedback} className="my-4 w-full">
         <textarea
@@ -83,7 +88,7 @@ export function FeedbackContentStep({
         placeholder-zinc-400 text-zinc-100 border-zinc-600 bg-transparent rounded-md 
         focus:border-brand-500 focus:ring-brand-500 focus:ring-1  resize-none focus:outline-none
           scrollbar-thumb-zinc-700 scrollbar-track-transparent scrollbar-thin"
-          placeholder="Tell in detail what is happening"
+          placeholder={t.content.placeholder}
           onChange={(e) => setComment(e.target.value)}
         />
         <footer className=" flex gap-2 mt-2">
@@ -100,7 +105,7 @@ export function FeedbackContentStep({
            transition-colors disabled:opacity-50 disabled:cursor-not-allowed
            disabled:hover:bg-brand-500"
           >
-           {isSendingFeedback? <Loading/> :  "Send feedback"}
+           {isSendingFeedback? <Loading/> :  t.content.sendButton}
           </button>
         </footer>
       </form>

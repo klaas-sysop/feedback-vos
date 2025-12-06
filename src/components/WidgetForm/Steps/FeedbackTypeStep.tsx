@@ -1,18 +1,23 @@
 'use client'
 
-import { FeedbackType, feedbackTypes } from "..";
+import { FeedbackType, getFeedbackTypes } from "..";
 import { CloseButton } from "../../CloseButton";
+import { Language, getTranslations } from "../../../lib/translations";
 
 interface FeedbackTypeStepProps {
     onFeedbackTypeChanged: (type: FeedbackType) => void;
+    language: Language;
 }
 
-export function FeedbackTypeStep({ onFeedbackTypeChanged }: FeedbackTypeStepProps) {
+export function FeedbackTypeStep({ onFeedbackTypeChanged, language }: FeedbackTypeStepProps) {
+    const t = getTranslations(language);
+    const feedbackTypes = getFeedbackTypes(language);
+    
     return (
         <>
             <header className="flex items-center justify-between w-full gap-2">
-                <span className="text-xl leading-6">Please give us your feedback!</span>
-                <CloseButton />
+                <span className="text-xl leading-6">{t.form.header}</span>
+                <CloseButton title={t.form.closeButton} />
             </header>
             <div className="flex py-8 gap-2 w-full">
                 {

@@ -35,7 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
             repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
           }}
-          position="bottom-right"
+          position={process.env.NEXT_PUBLIC_FEEDBACK_POSITION as 'bottom-right' | 'bottom-left' | undefined}
+          language={process.env.NEXT_PUBLIC_FEEDBACK_LANG as 'en' | 'nl' | undefined}
         />
       </body>
     </html>
@@ -53,7 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
    NEXT_PUBLIC_GITHUB_TOKEN=your_github_token_here
    NEXT_PUBLIC_GITHUB_OWNER=your-username
    NEXT_PUBLIC_GITHUB_REPO=your-repo-name
-   NEXT_PUBLIC_FEEDBACK_POSITION=bottom-right  # optional: bottom-left
+   NEXT_PUBLIC_FEEDBACK_POSITION=bottom-right  # optional: bottom-left, top-right, top-left
+   NEXT_PUBLIC_FEEDBACK_LANG=nl  # optional: 'nl' for Dutch, 'en' for English (default)
    ```
 
 **Important:** `owner` and `repo` are case-sensitive. Ensure Issues are enabled in your repository.
@@ -69,7 +71,8 @@ interface WidgetProps {
     repo: string;
     screenshotPath?: string; // default: '.feedback-vos'
   };
-  position?: 'bottom-right' | 'bottom-left';
+  position?: 'bottom-right' | 'bottom-left'; // or use NEXT_PUBLIC_FEEDBACK_POSITION env var
+  language?: 'en' | 'nl'; // defaults to 'en', or use NEXT_PUBLIC_FEEDBACK_LANG env var
 }
 ```
 

@@ -6,29 +6,33 @@ import { FeedbackTypeStep } from './Steps/FeedbackTypeStep';
 import { FeedbackContentStep } from './Steps/FeedbackContentStep';
 import { FeedbackSuccessStep } from './Steps/FeedbackSuccessStep';
 import { FeedbackType, GitHubConfig } from '../../types';
+import { Language, getTranslations } from '../../lib/translations';
 
-export const feedbackTypes = {
-  BUG: {
-    title: 'Bug',
-    image: {
-      source: bugImageUrl,
-      alt: 'A purple caterpillar image',
+export function getFeedbackTypes(language: Language = 'en') {
+  const t = getTranslations(language);
+  return {
+    BUG: {
+      title: t.types.bug,
+      image: {
+        source: bugImageUrl,
+        alt: 'A purple caterpillar image',
+      },
     },
-  },
-  IDEA: {
-    title: 'Idea',
-    image: {
-      source: ideaImageUrl,
-      alt: 'A Lamp image',
+    IDEA: {
+      title: t.types.idea,
+      image: {
+        source: ideaImageUrl,
+        alt: 'A Lamp image',
+      },
     },
-  },
-  OTHER: {
-    title: 'Other',
-    image: {
-      source: thoughtImageUrl,
-      alt: 'A thought balloon image',
+    OTHER: {
+      title: t.types.other,
+      image: {
+        source: thoughtImageUrl,
+        alt: 'A thought balloon image',
+      },
     },
-  },
+  };
 }
 
 export type { FeedbackType };
@@ -36,9 +40,10 @@ export type { FeedbackType };
 interface WidgetFormProps {
   integration: 'github';
   githubConfig: GitHubConfig;
+  language: Language;
 }
 
-export function WidgetForm({ integration, githubConfig }: WidgetFormProps) {
+export function WidgetForm({ integration, githubConfig, language }: WidgetFormProps) {
   const [feedbackType, setFeedbackType] = useState<FeedbackType | null>(null)
   const [feedbackSent, setFeedbackSent] = useState(false)
   
@@ -50,11 +55,11 @@ export function WidgetForm({ integration, githubConfig }: WidgetFormProps) {
   return (
     <div className="bg-zinc-900 p-4 relative rounded-2xl mb-4 flex flex-col items-center shadow-lg w-[calc(100vw-2rem)] md:w-auto">
       {feedbackSent ? (
-        <FeedbackSuccessStep onFeedbackRestartRequest={handleRestartFeedback} />
+        <FeedbackSuccessStep onFeedbackRestartRequest={handleRestartFeedback} language={language} />
       ) : (
         <>
           {!feedbackType ? (
-            <FeedbackTypeStep onFeedbackTypeChanged={setFeedbackType} />
+            <FeedbackTypeStep onFeedbackTypeChanged={setFeedbackType} language={language} />
           ) : (
             <FeedbackContentStep
               feedbackType={feedbackType}
@@ -62,6 +67,7 @@ export function WidgetForm({ integration, githubConfig }: WidgetFormProps) {
               onFeedbackSent={() => setFeedbackSent(true)}
               integration={integration}
               githubConfig={githubConfig}
+              language={language}
             />
           )}
         </>
