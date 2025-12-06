@@ -135,17 +135,25 @@ RUN chown -R nextjs:nodejs /app
 RUN apk add --no-cache libcap && \
     setcap cap_net_bind_service=+ep /usr/local/bin/node
 
+# Create a Node.js wrapper script that ensures PORT is set correctly
+# This is more reliable than patching server.js with sed
+RUN cat > /app/start.js << 'EOF' && chown nextjs:nodejs /app/start.js
+// Wrapper script to ensure Next.js standalone server uses PORT=80
+process.env.PORT = process.env.PORT || '80';
+process.env.HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
+
+// Load and run the Next.js server
+require('./server.js');
+EOF
+
 USER nextjs
 
 EXPOSE 80
 
 # Set PORT and HOSTNAME environment variables
-# Next.js standalone server.js should read these automatically
 ENV PORT=80
 ENV HOSTNAME="0.0.0.0"
 
-# Start the Next.js server with explicit PORT and HOSTNAME
-# Next.js standalone reads PORT from process.env, defaulting to 3000 if not set
-# We explicitly set PORT=80 and HOSTNAME=0.0.0.0 to ensure the server listens on the correct port
-CMD ["sh", "-c", "PORT=80 HOSTNAME=0.0.0.0 node server.js"]
+# Use the Node.js wrapper script to ensure PORT is correctly set
+CMD ["node", "start.js"]
 
