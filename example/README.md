@@ -23,6 +23,8 @@ This is an example Next.js project to test the `feedback-vos` widget locally bef
    NEXT_PUBLIC_GITHUB_TOKEN=your_github_personal_access_token
    NEXT_PUBLIC_GITHUB_OWNER=your-username
    NEXT_PUBLIC_GITHUB_REPO=your-repo-name
+   # Optional: Widget position (default: 'bottom-right', alternative: 'bottom-left')
+   NEXT_PUBLIC_FEEDBACK_POSITION=bottom-right
    ```
    
    **Important:** 
@@ -60,11 +62,9 @@ You should see:
    - Test with different feedback types and screenshots
 
 3. **Position Testing:**
-   - Modify `app/components/FeedbackWidget.tsx` to test different positions:
-     - `bottom-right` (default)
-     - `bottom-left`
-     - `top-right`
-     - `top-left`
+   - Set `NEXT_PUBLIC_FEEDBACK_POSITION` in your `.env.local` to test different positions:
+     - `bottom-right` (default) - Bottom right corner
+     - `bottom-left` - Bottom left corner
 
 ## How It Works
 

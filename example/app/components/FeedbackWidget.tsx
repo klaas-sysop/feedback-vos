@@ -12,7 +12,7 @@ export function FeedbackWidget() {
         owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
         repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
       }}
-      position="bottom-right"
+      position={process.env.NEXT_PUBLIC_FEEDBACK_POSITION as 'bottom-right' | 'bottom-left' | undefined}
     />
   )
 }

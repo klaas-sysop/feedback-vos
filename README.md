@@ -55,6 +55,7 @@ export default function RootLayout({
             owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
             repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
           }}
+          position={process.env.NEXT_PUBLIC_FEEDBACK_POSITION as 'bottom-right' | 'bottom-left' | undefined}
         />
       </body>
     </html>
@@ -90,7 +91,7 @@ export default function RootLayout({
        owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
        repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
      }}
-     position="bottom-right"
+     position={process.env.NEXT_PUBLIC_FEEDBACK_POSITION as 'bottom-right' | 'bottom-left' | undefined}
    />
    ```
 
@@ -109,7 +110,7 @@ export default function RootLayout({
 interface WidgetProps {
   integration: 'github';
   githubConfig: GitHubConfig;
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  position?: 'bottom-right' | 'bottom-left';
 }
 
 interface GitHubConfig {
@@ -123,9 +124,7 @@ interface GitHubConfig {
 ### Position Options
 
 - `bottom-right` (default) - Bottom right corner
-- `bottom-left` - Bottom left corner
-- `top-right` - Top right corner
-- `top-left` - Top left corner
+- `bottom-left` - Bottom left corner (set via `NEXT_PUBLIC_FEEDBACK_POSITION=bottom-left` environment variable)
 
 ## Examples
 
@@ -147,7 +146,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
             repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
           }}
-          position="bottom-right"
+          position={process.env.NEXT_PUBLIC_FEEDBACK_POSITION as 'bottom-right' | 'bottom-left' | undefined}
         />
       </body>
     </html>
@@ -164,6 +163,8 @@ Add these to your `.env.local` file:
 NEXT_PUBLIC_GITHUB_TOKEN=ghp_...
 NEXT_PUBLIC_GITHUB_OWNER=your-username
 NEXT_PUBLIC_GITHUB_REPO=your-repo-name
+# Optional: Widget position (default: 'bottom-right', alternative: 'bottom-left')
+NEXT_PUBLIC_FEEDBACK_POSITION=bottom-right
 # Optional: Custom path for screenshots (default: '.feedback-vos')
 NEXT_PUBLIC_GITHUB_SCREENSHOT_PATH=assets/.feedback-vos
 ```
