@@ -259,6 +259,47 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 MIT License - see LICENSE file for details.
 
+## Publishing
+
+This package is ready to be published to npm. To publish:
+
+1. **Ensure you're logged in to npm:**
+   ```bash
+   npm login
+   ```
+
+2. **Verify the build works:**
+   ```bash
+   npm run build
+   ```
+   This will generate the `dist/` folder with all necessary files.
+
+3. **Check what will be published:**
+   ```bash
+   npm pack --dry-run
+   ```
+   This shows exactly which files will be included in the package.
+
+4. **Publish to npm:**
+   ```bash
+   npm publish
+   ```
+   
+   For the first publish, the package will be public by default. If you need to explicitly set access:
+   ```bash
+   npm publish --access public
+   ```
+
+5. **Update version for subsequent releases:**
+   ```bash
+   npm version patch  # for bug fixes (1.0.0 -> 1.0.1)
+   npm version minor  # for new features (1.0.0 -> 1.1.0)
+   npm version major  # for breaking changes (1.0.0 -> 2.0.0)
+   npm publish
+   ```
+
+The `prepublishOnly` script in `package.json` will automatically run the build before publishing, ensuring the latest code is included.
+
 ## Support
 
 For issues, questions, or feature requests, please open an issue on [GitHub](https://github.com/klaas-sysop/npm-feedback-vos).
