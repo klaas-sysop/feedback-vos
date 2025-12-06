@@ -1,0 +1,59 @@
+{
+  "name": "feedback-vos",
+  "version": "1.0.0",
+  "description": "A beautiful feedback widget for Next.js with Notion and GitHub integrations",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "feedback",
+    "widget",
+    "nextjs",
+    "notion",
+    "github",
+    "react",
+    "typescript"
+  ],
+  "author": "Klaas Sysop",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/klaas-sysop/npm-feedback-vos.git"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "next": "^14.0.0"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.17",
+    "html2canvas": "^1.4.1",
+    "phosphor-react": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
