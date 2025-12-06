@@ -21,23 +21,14 @@ This is an example Next.js project to test the `feedback-vos` widget locally bef
    Create a `.env.local` file in this directory:
    ```env
    NEXT_PUBLIC_GITHUB_TOKEN=your_github_personal_access_token
+   NEXT_PUBLIC_GITHUB_OWNER=your-username
+   NEXT_PUBLIC_GITHUB_REPO=your-repo-name
    ```
    
    **Important:** 
    - Get your GitHub Personal Access Token from https://github.com/settings/tokens
    - Select scope: `repo` (for private repos) or `public_repo` (for public repos)
    - See the main [README.md](../README.md) for detailed instructions on setting up GitHub integration
-
-4. **Update the FeedbackWidget component:**
-   
-   Edit `app/components/FeedbackWidget.tsx` and update the `githubConfig` with your GitHub username and repository name:
-   ```tsx
-   githubConfig={{
-     token: process.env.NEXT_PUBLIC_GITHUB_TOKEN!,
-     owner: 'your-username',
-     repo: 'your-repo-name',
-   }}
-   ```
 
 ## Running the Example
 

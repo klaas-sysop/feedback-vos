@@ -52,8 +52,8 @@ export default function RootLayout({
           integration="github"
           githubConfig={{
             token: process.env.NEXT_PUBLIC_GITHUB_TOKEN!,
-            owner: 'your-username',
-            repo: 'your-repo-name',
+            owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
+            repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
           }}
         />
       </body>
@@ -77,6 +77,8 @@ export default function RootLayout({
    Create a `.env.local` file in your Next.js project root with:
    ```env
    NEXT_PUBLIC_GITHUB_TOKEN=your_github_token_here
+   NEXT_PUBLIC_GITHUB_OWNER=your-username
+   NEXT_PUBLIC_GITHUB_REPO=your-repo-name
    ```
 
 3. **Configure in your app:**
@@ -85,8 +87,8 @@ export default function RootLayout({
      integration="github"
      githubConfig={{
        token: process.env.NEXT_PUBLIC_GITHUB_TOKEN!,
-       owner: 'your-username',  // Your GitHub username or organization name
-       repo: 'your-repo-name',   // Repository name (case-sensitive)
+       owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
+       repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
      }}
      position="bottom-right"
    />
@@ -142,8 +144,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           integration="github"
           githubConfig={{
             token: process.env.NEXT_PUBLIC_GITHUB_TOKEN!,
-            owner: 'klaas-sysop',
-            repo: 'my-project',
+            owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
+            repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
           }}
           position="bottom-right"
         />
@@ -160,6 +162,8 @@ Add these to your `.env.local` file:
 ```env
 # For GitHub
 NEXT_PUBLIC_GITHUB_TOKEN=ghp_...
+NEXT_PUBLIC_GITHUB_OWNER=your-username
+NEXT_PUBLIC_GITHUB_REPO=your-repo-name
 # Optional: Custom path for screenshots (default: '.feedback-vos')
 NEXT_PUBLIC_GITHUB_SCREENSHOT_PATH=assets/.feedback-vos
 ```

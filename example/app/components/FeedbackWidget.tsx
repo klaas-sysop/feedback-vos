@@ -9,8 +9,8 @@ export function FeedbackWidget() {
       integration="github"
       githubConfig={{
         token: process.env.NEXT_PUBLIC_GITHUB_TOKEN!,
-        owner: 'klaas-sysop',
-        repo: 'npm-feedback-vos',
+        owner: process.env.NEXT_PUBLIC_GITHUB_OWNER!,
+        repo: process.env.NEXT_PUBLIC_GITHUB_REPO!,
       }}
       position="bottom-right"
     />
