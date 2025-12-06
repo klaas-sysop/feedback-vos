@@ -10,7 +10,7 @@ interface FeedbackTypeStepProps {
 export function FeedbackTypeStep({ onFeedbackTypeChanged }: FeedbackTypeStepProps) {
     return (
         <>
-            <header>
+            <header className="flex items-center justify-between w-full gap-2">
                 <span className="text-xl leading-6">Please give us your feedback!</span>
                 <CloseButton />
             </header>

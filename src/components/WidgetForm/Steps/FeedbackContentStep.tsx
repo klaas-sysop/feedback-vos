@@ -58,7 +58,7 @@ export function FeedbackContentStep({
   
   return (
     <>
-      <header>
+      <header className="relative w-full pr-8">
         <button
           type="button"
           className="absolute top-5 left-5 text-zinc-400 hover:text-zinc-100"
@@ -75,7 +75,7 @@ export function FeedbackContentStep({
           />
           {feedbackTypeData.title}
         </span>
-        <CloseButton />
+        <CloseButton className="absolute top-5 right-5" />
       </header>
       <form onSubmit={handleSubmitFeedback} className="my-4 w-full">
         <textarea
