@@ -128,21 +128,6 @@ COPY --from=next-builder /app/example/.next/static ./.next/static
 # Copy public directory if it exists (optional - uncomment if you have a public directory)
 # COPY --from=next-builder /app/public ./public
 
-# Patch server.js to ensure it uses PORT=80
-# Next.js standalone may have hardcoded port 3000, so we'll patch it
-RUN if [ -f server.js ]; then \
-      echo "Patching server.js to use PORT=80..."; \
-      # Replace hardcoded 3000 with 80, but preserve PORT env var usage
-      sed -i.bak 's/process\.env\.PORT\s*\|\|\s*3000/process.env.PORT || 80/g' server.js 2>/dev/null || true; \
-      sed -i.bak 's/:3000/:80/g' server.js 2>/dev/null || true; \
-      sed -i.bak 's/port\s*=\s*3000/port = 80/g' server.js 2>/dev/null || true; \
-      sed -i.bak 's/const port = 3000/const port = process.env.PORT || 80/g' server.js 2>/dev/null || true; \
-      sed -i.bak 's/let port = 3000/let port = process.env.PORT || 80/g' server.js 2>/dev/null || true; \
-      echo "Server.js patched."; \
-    else \
-      echo "Warning: server.js not found!"; \
-    fi
-
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
 
@@ -150,22 +135,76 @@ RUN chown -R nextjs:nodejs /app
 RUN apk add --no-cache libcap && \
     setcap cap_net_bind_service=+ep /usr/local/bin/node
 
-# Create a Node.js wrapper script that ensures PORT is set correctly
-# Next.js standalone server.js may have hardcoded port 3000, so we override it
-RUN cat > /app/start.js << 'EOF' && chown nextjs:nodejs /app/start.js
-// Wrapper script to ensure Next.js standalone server uses PORT=80
-// Force PORT and HOSTNAME before loading server.js
+# Create a Node.js script that patches server.js to use PORT=80
+# This is more reliable than sed because we can properly parse and modify the file
+RUN cat > /app/patch-server.js << 'EOF' && chown nextjs:nodejs /app/patch-server.js
+const fs = require('fs');
+const path = require('path');
+
+const serverPath = path.join(__dirname, 'server.js');
+
+if (!fs.existsSync(serverPath)) {
+  console.error('server.js not found!');
+  process.exit(1);
+}
+
+let serverCode = fs.readFileSync(serverPath, 'utf8');
+
+// Replace various patterns for port 3000
+const replacements = [
+  // process.env.PORT || 3000 -> process.env.PORT || 80
+  [/(process\.env\.PORT\s*\|\|\s*)3000/g, '$180'],
+  // :3000 -> :80 (but be careful not to replace in other contexts)
+  [/:3000(?!\d)/g, ':80'],
+  // const port = 3000 -> const port = process.env.PORT || 80
+  [/const\s+port\s*=\s*3000/g, 'const port = process.env.PORT || 80'],
+  // let port = 3000 -> let port = process.env.PORT || 80
+  [/let\s+port\s*=\s*3000/g, 'let port = process.env.PORT || 80'],
+  // var port = 3000 -> var port = process.env.PORT || 80
+  [/var\s+port\s*=\s*3000/g, 'var port = process.env.PORT || 80'],
+  // port = 3000 -> port = process.env.PORT || 80
+  [/(\s+)port\s*=\s*3000(\s|;|,)/g, '$1port = process.env.PORT || 80$2'],
+];
+
+let modified = false;
+for (const [pattern, replacement] of replacements) {
+  if (serverCode.match(pattern)) {
+    serverCode = serverCode.replace(pattern, replacement);
+    modified = true;
+  }
+}
+
+if (modified) {
+  fs.writeFileSync(serverPath, serverCode, 'utf8');
+  console.log('server.js patched successfully');
+} else {
+  console.log('No port 3000 found in server.js, assuming it uses PORT env var');
+}
+EOF
+
+# Patch server.js using Node.js (more reliable than sed)
+RUN node /app/patch-server.js || echo "Warning: Could not patch server.js"
+
+# Backup original server.js and create a wrapper that forces PORT=80
+RUN if [ -f server.js ]; then \
+      mv server.js server.js.original && \
+      cat > server.js << 'SERVEREOF' && chown nextjs:nodejs server.js
+// Wrapper for Next.js standalone server.js
+// This ensures PORT=80 is used
+
+// Force PORT and HOSTNAME before loading original server
 process.env.PORT = '80';
 process.env.HOSTNAME = '0.0.0.0';
 
-// Log the port we're using (for debugging)
-console.log('Starting Next.js server on port', process.env.PORT);
-console.log('Hostname:', process.env.HOSTNAME);
+console.log('=== Starting Next.js Standalone Server ===');
+console.log('PORT:', process.env.PORT);
+console.log('HOSTNAME:', process.env.HOSTNAME);
 
-// Load and run the Next.js server
-// The server.js should read process.env.PORT, but we've set it explicitly
-require('./server.js');
-EOF
+// Load and execute the original server code
+// This ensures PORT env var is set before the server initializes
+require('./server.js.original');
+SERVEREOF
+    fi
 
 USER nextjs
 
@@ -175,6 +214,6 @@ EXPOSE 80
 ENV PORT=80
 ENV HOSTNAME="0.0.0.0"
 
-# Use the Node.js wrapper script to ensure PORT is correctly set
-CMD ["node", "start.js"]
+# Use server.js (which is now a wrapper that ensures PORT=80)
+CMD ["node", "server.js"]
 
