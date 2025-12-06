@@ -74,6 +74,15 @@ export function WidgetForm({ integration, githubConfig }: WidgetFormProps) {
         >
           Klaas Sysop
         </a>
+        {' '}|{' '}
+        <a
+          className="underline underline-offset-2"
+          href="https://vossendesign.nl"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Vossen Design
+        </a>
       </footer>
     </div>
   )
