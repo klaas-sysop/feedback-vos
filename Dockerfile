@@ -31,6 +31,9 @@ WORKDIR /app
 COPY --from=parent-builder /app/dist ./feedback-vos/dist
 COPY --from=parent-builder /app/package.json ./feedback-vos/package.json
 
+# Copy src directory so relative imports work (for local development compatibility)
+COPY --from=parent-builder /app/src ./src
+
 # Copy example app files
 COPY example/package.json example/package-lock.json ./
 COPY example/tsconfig.json ./
