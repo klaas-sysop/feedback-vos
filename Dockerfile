@@ -139,8 +139,13 @@ USER nextjs
 
 EXPOSE 80
 
+# Set PORT and HOSTNAME environment variables
+# Next.js standalone server.js should read these automatically
 ENV PORT=80
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# Start the Next.js server with explicit PORT and HOSTNAME
+# Next.js standalone reads PORT from process.env, defaulting to 3000 if not set
+# We explicitly set PORT=80 and HOSTNAME=0.0.0.0 to ensure the server listens on the correct port
+CMD ["sh", "-c", "PORT=80 HOSTNAME=0.0.0.0 node server.js"]
 
