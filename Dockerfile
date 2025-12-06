@@ -128,6 +128,21 @@ COPY --from=next-builder /app/example/.next/static ./.next/static
 # Copy public directory if it exists (optional - uncomment if you have a public directory)
 # COPY --from=next-builder /app/public ./public
 
+# Patch server.js to ensure it uses PORT=80
+# Next.js standalone may have hardcoded port 3000, so we'll patch it
+RUN if [ -f server.js ]; then \
+      echo "Patching server.js to use PORT=80..."; \
+      # Replace hardcoded 3000 with 80, but preserve PORT env var usage
+      sed -i.bak 's/process\.env\.PORT\s*\|\|\s*3000/process.env.PORT || 80/g' server.js 2>/dev/null || true; \
+      sed -i.bak 's/:3000/:80/g' server.js 2>/dev/null || true; \
+      sed -i.bak 's/port\s*=\s*3000/port = 80/g' server.js 2>/dev/null || true; \
+      sed -i.bak 's/const port = 3000/const port = process.env.PORT || 80/g' server.js 2>/dev/null || true; \
+      sed -i.bak 's/let port = 3000/let port = process.env.PORT || 80/g' server.js 2>/dev/null || true; \
+      echo "Server.js patched."; \
+    else \
+      echo "Warning: server.js not found!"; \
+    fi
+
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
 
@@ -136,13 +151,19 @@ RUN apk add --no-cache libcap && \
     setcap cap_net_bind_service=+ep /usr/local/bin/node
 
 # Create a Node.js wrapper script that ensures PORT is set correctly
-# This is more reliable than patching server.js with sed
+# Next.js standalone server.js may have hardcoded port 3000, so we override it
 RUN cat > /app/start.js << 'EOF' && chown nextjs:nodejs /app/start.js
 // Wrapper script to ensure Next.js standalone server uses PORT=80
-process.env.PORT = process.env.PORT || '80';
-process.env.HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
+// Force PORT and HOSTNAME before loading server.js
+process.env.PORT = '80';
+process.env.HOSTNAME = '0.0.0.0';
+
+// Log the port we're using (for debugging)
+console.log('Starting Next.js server on port', process.env.PORT);
+console.log('Hostname:', process.env.HOSTNAME);
 
 // Load and run the Next.js server
+// The server.js should read process.env.PORT, but we've set it explicitly
 require('./server.js');
 EOF
 
