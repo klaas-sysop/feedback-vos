@@ -114,7 +114,7 @@ interface GitHubConfig {
   token: string;
   owner: string;
   repo: string;
-  screenshotPath?: string; // Optional: path where screenshots are stored (default: 'feedback-screenshots')
+  screenshotPath?: string; // Optional: path where screenshots are stored (default: '.feedback-vos')
 }
 ```
 
@@ -160,8 +160,8 @@ Add these to your `.env.local` file:
 ```env
 # For GitHub
 NEXT_PUBLIC_GITHUB_TOKEN=ghp_...
-# Optional: Custom path for screenshots (default: 'feedback-screenshots')
-NEXT_PUBLIC_GITHUB_SCREENSHOT_PATH=assets/feedback-screenshots
+# Optional: Custom path for screenshots (default: '.feedback-vos')
+NEXT_PUBLIC_GITHUB_SCREENSHOT_PATH=assets/.feedback-vos
 ```
 
 **Note:** Since this is a `NEXT_PUBLIC_` variable, it will be exposed to the client. For production, consider using a backend API route to handle the integration server-side.
@@ -174,9 +174,9 @@ When a user submits feedback through the widget:
 2. The user's comment is included
 3. If a screenshot was taken:
    - It's automatically compressed and optimized (max 1920px width, JPEG quality 0.7)
-   - **Uploaded to your repository** in `feedback-screenshots/` folder
+   - **Uploaded to your repository** in `.feedback-vos/` folder
    - The image URL is included in the issue (not base64, so no size limits!)
-   - Screenshots are stored as: `feedback-screenshots/feedback-{timestamp}-{random}.jpg`
+   - Screenshots are stored as: `.feedback-vos/feedback-{timestamp}-{random}.jpg`
 4. A GitHub issue is automatically created with:
    - Title: `[TYPE] Feedback`
    - Body: Contains the comment and screenshot reference (if provided)
@@ -184,7 +184,7 @@ When a user submits feedback through the widget:
 
 ### Screenshot Storage
 
-Screenshots are automatically uploaded to your repository in the configured folder (default: `feedback-screenshots/`). This means:
+Screenshots are automatically uploaded to your repository in the configured folder (default: `.feedback-vos/`). This means:
 - ✅ No size limit issues (URL is short, not base64)
 - ✅ Screenshots are part of your repository
 - ✅ Easy to access and manage
@@ -193,7 +193,7 @@ Screenshots are automatically uploaded to your repository in the configured fold
 
 **Note:** 
 - Labels must exist in your repository. If they don't exist, GitHub will ignore them. You can create these labels in your repository settings under Issues → Labels.
-- Screenshots are stored in your repository (default: `feedback-screenshots/` folder). You can customize the path using `screenshotPath` in the config or `NEXT_PUBLIC_GITHUB_SCREENSHOT_PATH` environment variable.
+- Screenshots are stored in your repository (default: `.feedback-vos/` folder). You can customize the path using `screenshotPath` in the config or `NEXT_PUBLIC_GITHUB_SCREENSHOT_PATH` environment variable.
 - The folder is automatically created on first use - you don't need to create it manually.
 - Make sure your token has **write access** (repo scope) to create files.
 

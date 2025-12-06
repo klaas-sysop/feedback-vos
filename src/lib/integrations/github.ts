@@ -42,8 +42,8 @@ async function uploadScreenshotToRepo(
     defaultBranch = repoData.default_branch || 'main';
   }
   
-  // Use configured path or default to 'feedback-screenshots'
-  const folderPath = screenshotPath || 'feedback-screenshots';
+  // Use configured path or default to '.feedback-vos'
+  const folderPath = screenshotPath || '.feedback-vos';
   
   // Generate unique filename
   const timestamp = Date.now();
@@ -150,10 +150,10 @@ async function uploadScreenshotToRepo(
   
   const uploadData = await response.json();
   
-  // Return the raw GitHub URL for direct image access in markdown
+  // Return the GitHub blob URL with ?raw=true for direct image access in markdown
+  // Format: https://github.com/owner/repo/blob/branch/path?raw=true
   // This URL will work in GitHub issues and markdown
-  const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${path}`;
-  const downloadUrl = uploadData.content.download_url;
+  const rawUrl = `https://github.com/${owner}/${repo}/blob/${defaultBranch}/${path}?raw=true`;
   
   console.log(`Screenshot uploaded successfully to: ${rawUrl}`);
   
@@ -312,7 +312,7 @@ export async function sendToGitHub(
   if (screenshot) {
     try {
       console.log('Uploading screenshot to repository...');
-      console.log('Screenshot path:', screenshotPath || 'feedback-screenshots');
+      console.log('Screenshot path:', screenshotPath || '.feedback-vos');
       const screenshotUrl = await uploadScreenshotToRepo(token, owner, repo, screenshot, screenshotPath);
       console.log('Screenshot uploaded successfully, URL:', screenshotUrl);
       // Add screenshot reference (just the image, link is redundant)
