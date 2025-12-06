@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - master
+    paths-ignore:
+      - '.feedback-vos/**'
+      - 'example/**'
+      - '**.md'
 
 jobs:
   release:

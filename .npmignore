@@ -10,4 +10,6 @@ node_modules
 !README.md
 .cursor
 .vscode
+.feedback-vos
+example
 
