@@ -1,10 +1,4 @@
-import { FeedbackType } from '../../types';
-
-interface GitHubConfig {
-  token: string;
-  owner: string;
-  repo: string;
-}
+import { FeedbackType, GitHubConfig } from '../../types';
 
 interface FeedbackData {
   type: FeedbackType;
@@ -20,7 +14,8 @@ async function uploadScreenshotToRepo(
   token: string,
   owner: string,
   repo: string,
-  screenshot: string
+  screenshot: string,
+  screenshotPath?: string
 ): Promise<string> {
   // Compress screenshot first
   const compressedScreenshot = await compressScreenshot(screenshot, 1920, 0.7);
@@ -47,18 +42,20 @@ async function uploadScreenshotToRepo(
     defaultBranch = repoData.default_branch || 'main';
   }
   
+  // Use configured path or default to 'feedback-screenshots'
+  const folderPath = screenshotPath || 'feedback-screenshots';
+  
   // Generate unique filename
   const timestamp = Date.now();
   const randomId = Math.random().toString(36).substring(2, 9);
   const filename = `feedback-${timestamp}-${randomId}.jpg`;
-  const path = `.feedback-screenshots/${filename}`;
+  const path = `${folderPath}/${filename}`;
   
   // Convert binary to base64 for GitHub API
   const base64Content = btoa(String.fromCharCode(...binaryData));
   
-  // Try to create the .feedback-screenshots folder if it doesn't exist
+  // Try to create the folder if it doesn't exist
   // Check if folder exists by trying to get it
-  const folderPath = '.feedback-screenshots';
   const folderCheckUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
   
   try {
@@ -70,28 +67,50 @@ async function uploadScreenshotToRepo(
       },
     });
     
-    // If folder doesn't exist (404), create it with a .gitkeep file
+    // If folder doesn't exist (404), create it with a README.md file
     if (folderCheck.status === 404) {
-      const gitkeepContent = btoa('# Feedback screenshots folder\n');
-      await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}/.gitkeep`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          'User-Agent': 'feedback-vos',
-        },
-        body: JSON.stringify({
-          message: 'Create feedback-screenshots folder',
-          content: gitkeepContent,
-          branch: defaultBranch,
-        }),
-      }).catch(() => {
+      const readmeContent = btoa('# Feedback Screenshots\n\nThis folder contains screenshots from user feedback.\n');
+      try {
+        const folderCreateResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}/README.md`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'feedback-vos',
+          },
+          body: JSON.stringify({
+            message: 'Create feedback screenshots folder',
+            content: readmeContent,
+            branch: defaultBranch,
+          }),
+        });
+        
+        if (!folderCreateResponse.ok) {
+          const folderError = await folderCreateResponse.json().catch(() => ({}));
+          console.warn('Could not create folder, proceeding with upload anyway:', folderError);
+        } else {
+          console.log(`Folder ${folderPath} created successfully`);
+        }
+      } catch (folderCreateError) {
         // Ignore errors creating folder - might already exist or permission issue
-      });
+        console.warn('Could not create folder, proceeding with upload:', folderCreateError);
+      }
+    } else if (folderCheck.status === 200) {
+      // Folder exists, check if it's actually a folder (should return array) or a file
+      const folderData = await folderCheck.json().catch(() => null);
+      if (folderData && !Array.isArray(folderData)) {
+        // It's a file, not a folder - this will cause issues
+        throw new Error(`Path "${folderPath}" exists as a file, not a folder. Please use a different path or remove the file.`);
+      }
+      console.log(`Folder ${folderPath} already exists`);
     }
   } catch (folderError) {
-    // Ignore folder creation errors - proceed with upload
+    // If it's our custom error, re-throw it
+    if (folderError instanceof Error && folderError.message.includes('exists as a file')) {
+      throw folderError;
+    }
+    // Ignore other folder errors - proceed with upload
     console.warn('Could not verify/create screenshots folder:', folderError);
   }
   
@@ -130,8 +149,16 @@ async function uploadScreenshotToRepo(
   }
   
   const uploadData = await response.json();
-  // Return the raw URL for direct image access in markdown
-  return uploadData.content.download_url || `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${path}`;
+  
+  // Return the raw GitHub URL for direct image access in markdown
+  // This URL will work in GitHub issues and markdown
+  const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${path}`;
+  const downloadUrl = uploadData.content.download_url;
+  
+  console.log(`Screenshot uploaded successfully to: ${rawUrl}`);
+  
+  // Return the raw URL (works better in GitHub issues)
+  return rawUrl;
 }
 
 /**
@@ -230,7 +257,7 @@ export async function sendToGitHub(
   config: GitHubConfig,
   data: FeedbackData
 ): Promise<void> {
-  const { token, owner, repo } = config;
+  const { token, owner, repo, screenshotPath } = config;
   const { type, comment, screenshot } = data;
 
   // Validate configuration
@@ -261,77 +288,115 @@ export async function sendToGitHub(
   // Build issue title
   const title = `[${type}] Feedback`;
 
+  // Limit comment length early to prevent body from being too long
+  // GitHub's absolute limit is 65536 characters
+  // Base body text: "**Type:** ${type}\n\n**Comment:**\n" ≈ 30 chars
+  // Screenshot URL: "![Screenshot](url)" ≈ 150 chars
+  // Safety margin: 1000 chars
+  // So max comment length: 65536 - 30 - 150 - 1000 = 64356
+  const ABSOLUTE_MAX_LENGTH = 65536;
+  const BASE_BODY_LENGTH = 50; // Approximate length of base text
+  const SCREENSHOT_URL_LENGTH = 150; // Approximate length of screenshot markdown
+  const SAFETY_MARGIN = 1000; // Safety margin for any additional formatting
+  const MAX_COMMENT_LENGTH = ABSOLUTE_MAX_LENGTH - BASE_BODY_LENGTH - SCREENSHOT_URL_LENGTH - SAFETY_MARGIN;
+  
+  const limitedComment = comment.length > MAX_COMMENT_LENGTH 
+    ? comment.substring(0, MAX_COMMENT_LENGTH) + '\n\n... (comment truncated)'
+    : comment;
+
   // Build issue body
-  let body = `**Type:** ${type}\n\n**Comment:**\n${comment}`;
+  let body = `**Type:** ${type}\n\n**Comment:**\n${limitedComment}`;
 
   // Upload screenshot to repository if provided
   // This avoids the 65536 character limit by storing the image as a file
   if (screenshot) {
     try {
-      const screenshotUrl = await uploadScreenshotToRepo(token, owner, repo, screenshot);
+      console.log('Uploading screenshot to repository...');
+      console.log('Screenshot path:', screenshotPath || 'feedback-screenshots');
+      const screenshotUrl = await uploadScreenshotToRepo(token, owner, repo, screenshot, screenshotPath);
+      console.log('Screenshot uploaded successfully, URL:', screenshotUrl);
+      // Add screenshot reference (just the image, link is redundant)
       body += `\n\n**Screenshot:**\n![Screenshot](${screenshotUrl})`;
+      console.log('Body length after adding screenshot URL:', body.length);
     } catch (error) {
       // If upload fails, skip screenshot entirely (don't use base64 as it's too large)
-      console.warn('Failed to upload screenshot to repository, skipping screenshot:', error);
-      body += `\n\n**Screenshot:** Screenshot upload failed. Please describe the issue in detail.`;
+      console.error('Failed to upload screenshot to repository:', error);
+      // Don't add error message to body - just note that screenshot failed
+      // This keeps the body short
+      body += `\n\n**Screenshot:** Upload failed - screenshot not included.`;
+      console.log('Body length after upload failure:', body.length);
     }
   }
   
   // CRITICAL: Final safety check - ensure body is ALWAYS within limit before sending
   // GitHub's absolute limit is 65536 characters
-  const ABSOLUTE_MAX_LENGTH = 65536;
   const SAFE_MAX_LENGTH = 65000; // Use 65000 as safe margin
   
   // Log body length for debugging
-  console.log(`Issue body length: ${body.length} characters`);
+  console.log(`Issue body length before final check: ${body.length} characters`);
   
+  // If body is too long, truncate it progressively
   if (body.length > SAFE_MAX_LENGTH) {
-    // First, try to remove screenshot if present
+    console.warn(`Body is too long (${body.length}), truncating...`);
+    
+    // Calculate how much we need to reduce
+    const excess = body.length - SAFE_MAX_LENGTH;
+    
+    // Find the comment section
+    const commentStartMarker = '\n\n**Comment:**\n';
+    const commentStart = body.indexOf(commentStartMarker);
+    const screenshotStart = body.indexOf('\n\n**Screenshot:**');
+    
+    if (commentStart > 0) {
+      // Calculate comment boundaries
+      const commentStartPos = commentStart + commentStartMarker.length;
+      const commentEndPos = screenshotStart > 0 ? screenshotStart : body.length;
+      const currentComment = body.substring(commentStartPos, commentEndPos);
+      
+      // Calculate new comment length (reduce by excess + safety margin)
+      const newCommentLength = Math.max(100, currentComment.length - excess - 500);
+      const truncatedComment = currentComment.substring(0, newCommentLength) + '\n\n... (truncated due to size limit)';
+      
+      // Rebuild body with truncated comment
+      const beforeComment = body.substring(0, commentStartPos);
+      const afterComment = screenshotStart > 0 ? body.substring(screenshotStart) : '';
+      body = beforeComment + truncatedComment + afterComment;
+    }
+  }
+  
+  // Absolute final check - if still too long, force truncate aggressively
+  if (body.length >= ABSOLUTE_MAX_LENGTH) {
+    console.error(`Body STILL too long after truncation: ${body.length} characters. Force truncating.`);
+    
+    const baseText = `**Type:** ${type}\n\n**Comment:**\n`;
+    const maxCommentLength = ABSOLUTE_MAX_LENGTH - baseText.length - 1000; // Large margin for screenshot text
+    
+    // Use original comment, not limitedComment, to ensure we get a fresh truncation
+    const safeComment = comment.substring(0, Math.max(100, maxCommentLength)) + '\n\n... (truncated due to size limit)';
+    body = baseText + safeComment;
+    
+    // Remove screenshot if present (it will be added back if upload succeeds, but with URL not base64)
     const screenshotIndex = body.indexOf('\n\n**Screenshot:**');
     if (screenshotIndex > 0) {
-      // Check if removing screenshot helps
-      const bodyWithoutScreenshot = body.substring(0, screenshotIndex) + '\n\n**Screenshot:** Screenshot was too large to include.';
-      if (bodyWithoutScreenshot.length <= SAFE_MAX_LENGTH) {
-        body = bodyWithoutScreenshot;
-      } else {
-        // Still too long, need to truncate comment
-        body = bodyWithoutScreenshot;
-      }
-    }
-    
-    // If still too long after removing screenshot, truncate comment
-    if (body.length > SAFE_MAX_LENGTH) {
-      const commentStart = body.indexOf('\n\n**Comment:**\n') + 16;
-      if (commentStart > 16) {
-        const screenshotIndexAfter = body.indexOf('\n\n**Screenshot:**', commentStart);
-        const commentEnd = screenshotIndexAfter > 0 ? screenshotIndexAfter : body.length;
-        const maxCommentLength = SAFE_MAX_LENGTH - commentStart - 200; // Leave margin
-        
-        if (maxCommentLength > 100) {
-          const originalComment = body.substring(commentStart, commentEnd);
-          const truncatedComment = originalComment.substring(0, maxCommentLength) + '\n\n... (truncated due to size limit)';
-          const screenshotPart = screenshotIndexAfter > 0 ? body.substring(screenshotIndexAfter) : '';
-          body = body.substring(0, commentStart) + truncatedComment + screenshotPart;
-        } else {
-          // Can't fit even truncated comment, use minimal body
-          body = `**Type:** ${type}\n\n**Comment:** ${comment.substring(0, 500)}... (truncated)\n\n**Screenshot:** Screenshot was too large to include.`;
-        }
-      }
+      body = body.substring(0, screenshotIndex) + '\n\n**Screenshot:** Not included due to size limit.';
     }
   }
   
-  // Absolute final check - if still too long, force truncate
-  if (body.length > ABSOLUTE_MAX_LENGTH) {
-    console.error(`Body still too long after all attempts: ${body.length} characters. Force truncating.`);
-    body = body.substring(0, SAFE_MAX_LENGTH) + '\n\n... (content truncated due to GitHub size limits)';
+  // Final verification - ensure we're under the limit
+  if (body.length >= ABSOLUTE_MAX_LENGTH) {
+    // Emergency: use minimal body
+    const minimalBase = `**Type:** ${type}\n\n**Comment:**\n`;
+    const maxSafeComment = ABSOLUTE_MAX_LENGTH - minimalBase.length - 100;
+    const minimalComment = comment.substring(0, Math.max(50, maxSafeComment)) + '\n\n... (truncated)';
+    body = minimalBase + minimalComment;
   }
   
-  // Final verification
-  if (body.length > ABSOLUTE_MAX_LENGTH) {
-    throw new Error(`Cannot create issue: body is ${body.length} characters, exceeds GitHub limit of ${ABSOLUTE_MAX_LENGTH}`);
-  }
+  console.log(`Final issue body length: ${body.length} characters (limit: ${ABSOLUTE_MAX_LENGTH})`);
   
-  console.log(`Final issue body length: ${body.length} characters`);
+  // Final hard check - throw error if still too long (should never happen)
+  if (body.length >= ABSOLUTE_MAX_LENGTH) {
+    throw new Error(`CRITICAL: Cannot create issue - body is ${body.length} characters, exceeds GitHub limit of ${ABSOLUTE_MAX_LENGTH}.`);
+  }
 
   const url = `https://api.github.com/repos/${owner}/${repo}/issues`;
   

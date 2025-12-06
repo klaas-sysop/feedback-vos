@@ -4,6 +4,7 @@ export interface GitHubConfig {
   token: string;
   owner: string;
   repo: string;
+  screenshotPath?: string; // Optional: path where screenshots are stored (default: 'feedback-screenshots')
 }
 
 export interface WidgetProps {
