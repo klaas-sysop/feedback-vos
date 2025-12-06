@@ -1,7 +1,7 @@
 # Dockerfile for Feedback Vos Example Site
 # 
 # Build from the project root directory:
-#   docker build -f example/Dockerfile -t feedback-vos-example .
+#   docker build -f Dockerfile -t feedback-vos-example .
 #
 # Run the container:
 #   docker run -p 3000:3000 --env-file example/.env.local feedback-vos-example
