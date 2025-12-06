@@ -22,7 +22,10 @@ export default defineConfig({
   onSuccess: async () => {
     // Build CSS
     const cssContent = readFileSync(join(__dirname, 'src/styles.css'), 'utf-8');
-    const result = await postcss([tailwindcss, autoprefixer]).process(cssContent, {
+    const result = await postcss([
+      tailwindcss({ config: join(__dirname, 'tailwind.config.js') }),
+      autoprefixer
+    ]).process(cssContent, {
       from: undefined,
     });
     
