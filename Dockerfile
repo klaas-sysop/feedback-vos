@@ -81,8 +81,25 @@ const nextConfig = {
 module.exports = nextConfig
 EOF
 
-# Also update tsconfig.json to include parent node_modules for type resolution
-RUN node -e "const fs = require('fs'); const tsconfig = JSON.parse(fs.readFileSync('./example/tsconfig.json', 'utf8')); tsconfig.compilerOptions = tsconfig.compilerOptions || {}; tsconfig.compilerOptions.typeRoots = ['../node_modules/@types', './node_modules/@types']; fs.writeFileSync('./example/tsconfig.json', JSON.stringify(tsconfig, null, 2));"
+# Also update tsconfig.json to include parent node_modules for type resolution and .d.ts files
+RUN node -e "const fs = require('fs'); const tsconfig = JSON.parse(fs.readFileSync('./example/tsconfig.json', 'utf8')); tsconfig.compilerOptions = tsconfig.compilerOptions || {}; tsconfig.compilerOptions.typeRoots = ['../node_modules/@types', './node_modules/@types']; if (!tsconfig.include.includes('../src/**/*.d.ts')) { tsconfig.include.push('../src/**/*.d.ts'); } if (!tsconfig.include.includes('**/*.d.ts')) { tsconfig.include.push('**/*.d.ts'); } fs.writeFileSync('./example/tsconfig.json', JSON.stringify(tsconfig, null, 2));"
+
+# Create a type declaration file for SVG imports with ?raw query parameter
+# Place it in the example directory so TypeScript can find it
+RUN cat > ./example/svg-raw.d.ts << 'EOF'
+declare module '*.svg?raw' {
+  const content: string;
+  export default content;
+}
+EOF
+
+# Also create it in the src directory for the src files
+RUN cat > ./src/svg-raw.d.ts << 'EOF'
+declare module '*.svg?raw' {
+  const content: string;
+  export default content;
+}
+EOF
 
 # Change to example directory for build
 WORKDIR /app/example
