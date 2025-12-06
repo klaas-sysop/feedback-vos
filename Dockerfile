@@ -35,8 +35,9 @@ COPY --from=parent-builder /app/package.json ./feedback-vos/package.json
 COPY --from=parent-builder /app/package.json ./package.json
 COPY --from=parent-builder /app/package-lock.json ./package-lock.json
 
-# Install parent package dependencies so webpack can resolve them for src directory
-RUN npm ci --omit=dev
+# Install parent package dependencies including devDependencies for TypeScript types
+# We need @types/react and other type definitions
+RUN npm ci
 
 # Copy example app files first
 COPY example/package.json example/package-lock.json ./example/
@@ -72,9 +73,16 @@ const nextConfig = {
   },
   // Add empty turbopack config to silence the warning, but we'll use webpack
   turbopack: {},
+  // Configure TypeScript to use types from example app's node_modules
+  typescript: {
+    tsconfigPath: './tsconfig.json',
+  },
 }
 module.exports = nextConfig
 EOF
+
+# Also update tsconfig.json to include parent node_modules for type resolution
+RUN node -e "const fs = require('fs'); const tsconfig = JSON.parse(fs.readFileSync('./example/tsconfig.json', 'utf8')); tsconfig.compilerOptions = tsconfig.compilerOptions || {}; tsconfig.compilerOptions.typeRoots = ['../node_modules/@types', './node_modules/@types']; fs.writeFileSync('./example/tsconfig.json', JSON.stringify(tsconfig, null, 2));"
 
 # Change to example directory for build
 WORKDIR /app/example
