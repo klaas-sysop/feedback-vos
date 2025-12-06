@@ -31,19 +31,26 @@ WORKDIR /app
 COPY --from=parent-builder /app/dist ./feedback-vos/dist
 COPY --from=parent-builder /app/package.json ./feedback-vos/package.json
 
-# Copy src directory so relative imports work (for local development compatibility)
+# Recreate the directory structure to match local development
+# Local: example/app/components/FeedbackWidget.tsx imports ../../../src/components/Widget
+# This means: from example/app/components/ go up 3 levels to root, then src/components/Widget
+# So we need: /app/src/ (parent src) and /app/example/app/ (example app)
 COPY --from=parent-builder /app/src ./src
 
-# Copy example app files
-COPY example/package.json example/package-lock.json ./
-COPY example/tsconfig.json ./
-COPY example/next.config.js ./
-COPY example/tailwind.config.js ./
-COPY example/postcss.config.js ./
-COPY example/app ./app
+# Copy example app files into example directory to match local structure
+COPY example/package.json example/package-lock.json ./example/
+COPY example/tsconfig.json ./example/
+COPY example/next.config.js ./example/
+COPY example/tailwind.config.js ./example/
+COPY example/postcss.config.js ./example/
+COPY example/app ./example/app
+
+# Change to example directory for build
+WORKDIR /app/example
 
 # Install the local feedback-vos package and example dependencies
-RUN npm install ./feedback-vos && npm ci
+# Note: feedback-vos is in /app/feedback-vos, so we need to go up one level
+RUN npm install ../feedback-vos && npm ci
 
 # Build Next.js app
 RUN npm run build
@@ -58,9 +65,9 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
-COPY --from=next-builder /app/.next/standalone ./
-COPY --from=next-builder /app/.next/static ./.next/static
+# Copy necessary files from builder (built in /app/example)
+COPY --from=next-builder /app/example/.next/standalone ./
+COPY --from=next-builder /app/example/.next/static ./.next/static
 
 # Copy public directory if it exists (optional - uncomment if you have a public directory)
 # COPY --from=next-builder /app/public ./public
