@@ -188,8 +188,13 @@ RUN node /app/patch-server.js || echo "Warning: Could not patch server.js"
 # Backup original server.js and create a wrapper that forces PORT=80
 RUN if [ -f server.js ]; then \
       mv server.js server.js.original; \
-      cat > server.js << 'SERVEREOF'
-// Wrapper for Next.js standalone server.js
+    fi
+
+# Create wrapper server.js using Node.js (more reliable than heredoc in Docker)
+RUN cat > /app/create-wrapper.js << 'EOF'
+const fs = require('fs');
+if (fs.existsSync('./server.js.original')) {
+  const wrapperCode = `// Wrapper for Next.js standalone server.js
 // This ensures PORT=80 is used
 
 // Force PORT and HOSTNAME before loading original server
@@ -203,9 +208,15 @@ console.log('HOSTNAME:', process.env.HOSTNAME);
 // Load and execute the original server code
 // This ensures PORT env var is set before the server initializes
 require('./server.js.original');
-SERVEREOF
-      chown nextjs:nodejs server.js; \
-    fi
+`;
+  fs.writeFileSync('./server.js', wrapperCode, 'utf8');
+  console.log('Wrapper server.js created');
+} else {
+  console.log('server.js.original not found, skipping wrapper creation');
+}
+EOF
+
+RUN node /app/create-wrapper.js && chown nextjs:nodejs server.js server.js.original 2>/dev/null || true
 
 USER nextjs
 
