@@ -17,8 +17,10 @@ export function Widget({
     'top-left': 'top-4 left-4 md:top-8 md:left-4',
   };
 
+  const alignmentClass = position.includes('left') ? 'items-start' : 'items-end';
+
   return (
-    <Popover className={`absolute ${positionClasses[position]} flex flex-col items-end`}>
+    <Popover className={`fixed ${positionClasses[position]} flex flex-col ${alignmentClass} z-50`}>
       <Popover.Panel>
         <WidgetForm 
           integration={integration}

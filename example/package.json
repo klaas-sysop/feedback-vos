@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "feedback-vos": "file:..",
+    "@headlessui/react": "^1.7.17",
+    "html2canvas": "^1.4.1",
     "next": "^16.0.0",
+    "phosphor-react": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

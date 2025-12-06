@@ -1,7 +1,6 @@
 'use client'
 
-import { Widget } from 'feedback-vos'
-import 'feedback-vos/styles'
+import { Widget } from '../../../src/components/Widget'
 
 export function FeedbackWidget() {
   return (
