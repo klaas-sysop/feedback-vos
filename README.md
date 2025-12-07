@@ -112,7 +112,7 @@ When feedback is submitted:
 ## Requirements
 
 - Next.js 14+ or 16+
-- React 18+
+- React 18+ or 19+
 - Tailwind CSS
 
 ## License
