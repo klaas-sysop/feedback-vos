@@ -46,14 +46,11 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the built example app
-COPY --from=builder /app/example/public ./example/public
-
 # Set the correct permission for prerender cache
 RUN mkdir -p .next
 RUN chown nextjs:nodejs .next
 
-# Copy the standalone output
+# Copy the standalone output (includes public assets automatically in .next/static)
 COPY --from=builder --chown=nextjs:nodejs /app/example/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/example/.next/static ./example/.next/static
 
