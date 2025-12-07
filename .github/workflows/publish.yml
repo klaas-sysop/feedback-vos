@@ -9,6 +9,8 @@ on:
       - '.feedback-vos/**'
       - 'example/**'
       - '**.md'
+      - 'Dockerfile'
+      - '.dockerignore'
 
 jobs:
   publish:
