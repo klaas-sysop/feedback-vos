@@ -1,9 +1,81 @@
 import { FeedbackType, GitHubConfig } from '../../types';
+import { UploadedFile } from '../../components/FileUploadButton';
 
 interface FeedbackData {
   type: FeedbackType;
   comment: string;
   screenshot: string | null;
+  files: UploadedFile[];
+}
+
+/**
+ * Upload a file to repository and return the URL
+ * This avoids the 65536 character limit by storing files in the repo
+ */
+async function uploadFileToRepo(
+  token: string,
+  owner: string,
+  repo: string,
+  file: File,
+  folderPath: string,
+  defaultBranch: string
+): Promise<string> {
+  // Read file as base64
+  const base64Content = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove data URL prefix (e.g., "data:image/png;base64,")
+      const base64 = result.includes(',') ? result.split(',')[1] : result;
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  // Generate unique filename preserving extension
+  const timestamp = Date.now();
+  const randomId = Math.random().toString(36).substring(2, 9);
+  const fileExtension = file.name.split('.').pop() || 'bin';
+  const filename = `feedback-${timestamp}-${randomId}.${fileExtension}`;
+  const path = `${folderPath}/${filename}`;
+
+  // Upload to repository using GitHub Contents API
+  const uploadUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+  const response = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'feedback-vos',
+    },
+    body: JSON.stringify({
+      message: `Add feedback file: ${filename}`,
+      content: base64Content,
+      branch: defaultBranch,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.message || 'Unknown error';
+    
+    if (response.status === 409) {
+      throw new Error(`File already exists: ${filename}`);
+    } else if (response.status === 403) {
+      throw new Error(`Permission denied for file: ${filename}`);
+    } else if (response.status === 422) {
+      throw new Error(`File too large or invalid: ${filename} - ${errorMessage}`);
+    }
+    
+    throw new Error(`Failed to upload file ${filename} (${response.status}): ${errorMessage}`);
+  }
+
+  // Return the GitHub raw URL
+  const rawUrl = `https://github.com/${owner}/${repo}/blob/${defaultBranch}/${path}?raw=true`;
+  return rawUrl;
 }
 
 /**
@@ -258,7 +330,7 @@ export async function sendToGitHub(
   data: FeedbackData
 ): Promise<void> {
   const { token, owner, repo, screenshotPath } = config;
-  const { type, comment, screenshot } = data;
+  const { type, comment, screenshot, files } = data;
 
   // Validate configuration
   if (!token || !owner || !repo) {
@@ -283,6 +355,63 @@ export async function sendToGitHub(
       `Issues are disabled for repository "${owner}/${repo}".\n\n` +
       `Please enable Issues in repository Settings → General → Features → Issues`
     );
+  }
+
+  // Get default branch from repository
+  const repoResponse = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'feedback-vos',
+      },
+    }
+  );
+  
+  let defaultBranch = 'main';
+  if (repoResponse.ok) {
+    const repoData = await repoResponse.json();
+    defaultBranch = repoData.default_branch || 'main';
+  }
+
+  // Use configured path or default to '.feedback-vos'
+  const folderPath = screenshotPath || '.feedback-vos';
+
+  // Ensure folder exists (similar to screenshot upload)
+  const folderCheckUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
+  try {
+    const folderCheck = await fetch(folderCheckUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'feedback-vos',
+      },
+    });
+    
+    if (folderCheck.status === 404) {
+      const readmeContent = btoa('# Feedback Files\n\nThis folder contains files from user feedback.\n');
+      try {
+        await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}/README.md`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'feedback-vos',
+          },
+          body: JSON.stringify({
+            message: 'Create feedback files folder',
+            content: readmeContent,
+            branch: defaultBranch,
+          }),
+        });
+      } catch (folderCreateError) {
+        console.warn('Could not create folder, proceeding with upload:', folderCreateError);
+      }
+    }
+  } catch (folderError) {
+    console.warn('Could not verify/create files folder:', folderError);
   }
 
   // Build issue title
@@ -312,7 +441,7 @@ export async function sendToGitHub(
   if (screenshot) {
     try {
       console.log('Uploading screenshot to repository...');
-      console.log('Screenshot path:', screenshotPath || '.feedback-vos');
+      console.log('Screenshot path:', folderPath);
       const screenshotUrl = await uploadScreenshotToRepo(token, owner, repo, screenshot, screenshotPath);
       console.log('Screenshot uploaded successfully, URL:', screenshotUrl);
       // Add screenshot reference (just the image, link is redundant)
@@ -325,6 +454,44 @@ export async function sendToGitHub(
       // This keeps the body short
       body += `\n\n**Screenshot:** Upload failed - screenshot not included.`;
       console.log('Body length after upload failure:', body.length);
+    }
+  }
+
+  // Upload files to repository if provided
+  if (files && files.length > 0) {
+    const uploadedFileUrls: string[] = [];
+    const failedFiles: string[] = [];
+
+    for (const uploadedFile of files) {
+      try {
+        console.log(`Uploading file: ${uploadedFile.file.name}`);
+        const fileUrl = await uploadFileToRepo(
+          token,
+          owner,
+          repo,
+          uploadedFile.file,
+          folderPath,
+          defaultBranch
+        );
+        uploadedFileUrls.push(fileUrl);
+        console.log(`File uploaded successfully: ${fileUrl}`);
+      } catch (error) {
+        console.error(`Failed to upload file ${uploadedFile.file.name}:`, error);
+        failedFiles.push(uploadedFile.file.name);
+      }
+    }
+
+    // Add file references to body
+    if (uploadedFileUrls.length > 0) {
+      body += `\n\n**Uploaded Files:**\n`;
+      uploadedFileUrls.forEach((url, index) => {
+        const fileName = files[index]?.file.name || 'Unknown';
+        body += `- [${fileName}](${url})\n`;
+      });
+    }
+
+    if (failedFiles.length > 0) {
+      body += `\n\n**Failed to upload:** ${failedFiles.join(', ')}`;
     }
   }
   

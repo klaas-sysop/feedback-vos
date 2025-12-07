@@ -1,11 +1,12 @@
 'use client'
 
 import {ArrowLeft} from 'phosphor-react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { FeedbackType, getFeedbackTypes } from '..';
 import { CloseButton } from '../../CloseButton';
 import {Loading} from '../../Loading';
 import { ScreenshotButton } from '../../ScreenshotButton';
+import { FileUploadButton, UploadedFile } from '../../FileUploadButton';
 import { sendToGitHub } from '../../../lib/integrations/github';
 import { GitHubConfig } from '../../../types';
 import { Language, getTranslations } from '../../../lib/translations';
@@ -30,9 +31,21 @@ export function FeedbackContentStep({
   const t = getTranslations(language);
   const feedbackTypes = getFeedbackTypes(language);
   const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const feedbackTypeData = feedbackTypes[feedbackType];
   const [comment, setComment] = useState('');
   const[isSendingFeedback, setIsSendingFeedback] = useState(false);
+
+  // Cleanup object URLs when component unmounts or files change
+  useEffect(() => {
+    return () => {
+      uploadedFiles.forEach(file => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview);
+        }
+      });
+    };
+  }, [uploadedFiles]);
 
   async function handleSubmitFeedback(e: FormEvent) {
     e.preventDefault();
@@ -43,6 +56,7 @@ export function FeedbackContentStep({
         type: feedbackType,
         comment,
         screenshot,
+        files: uploadedFiles,
       };
 
       if (integration === 'github') {
@@ -91,6 +105,13 @@ export function FeedbackContentStep({
           placeholder={t.content.placeholder}
           onChange={(e) => setComment(e.target.value)}
         />
+        <div className="mt-2">
+          <FileUploadButton
+            files={uploadedFiles}
+            onFilesChanged={setUploadedFiles}
+            language={language}
+          />
+        </div>
         <footer className=" flex gap-2 mt-2">
           <ScreenshotButton
             screenshot={screenshot}
