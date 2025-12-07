@@ -92,9 +92,10 @@ async function uploadScreenshotToRepo(
   // Compress screenshot first
   const compressedScreenshot = await compressScreenshot(screenshot, 1920, 0.7);
   
-  // Convert base64 data URL to binary
-  const base64Data = compressedScreenshot.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-  const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+  // Extract base64 data from data URL (remove data:image/jpeg;base64, prefix)
+  const base64Content = compressedScreenshot.includes(',') 
+    ? compressedScreenshot.split(',')[1] 
+    : compressedScreenshot;
   
   // Get default branch from repository
   const repoResponse = await fetch(
@@ -122,9 +123,6 @@ async function uploadScreenshotToRepo(
   const randomId = Math.random().toString(36).substring(2, 9);
   const filename = `feedback-${timestamp}-${randomId}.jpg`;
   const path = `${folderPath}/${filename}`;
-  
-  // Convert binary to base64 for GitHub API
-  const base64Content = btoa(String.fromCharCode(...binaryData));
   
   // Try to create the folder if it doesn't exist
   // Check if folder exists by trying to get it
