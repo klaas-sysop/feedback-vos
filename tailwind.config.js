@@ -3,6 +3,7 @@ module.exports = {
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
   ],
+  important: '[data-feedback-widget]',
   theme: {
     extend: {
       colors: {
