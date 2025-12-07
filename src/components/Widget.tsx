@@ -59,14 +59,35 @@ export function Widget({
     ? 'left-0' 
     : 'right-0';
 
+  // Calculate inline styles for positioning to prevent CSS conflicts
+  const getPositionStyles = () => {
+    const baseStyles: React.CSSProperties = {
+      position: 'fixed',
+      zIndex: 9999,
+    };
+
+    if (position === 'bottom-right') {
+      baseStyles.bottom = '1rem';
+      baseStyles.right = '1rem';
+    } else if (position === 'bottom-left') {
+      baseStyles.bottom = '1rem';
+      baseStyles.left = '1rem';
+    } else if (position === 'top-right') {
+      baseStyles.top = '1rem';
+      baseStyles.right = '1rem';
+    } else if (position === 'top-left') {
+      baseStyles.top = '1rem';
+      baseStyles.left = '1rem';
+    }
+
+    return baseStyles;
+  };
+
   return (
     <div 
       data-feedback-widget="true" 
       className={`fixed ${positionClasses[position]} z-50`}
-      style={{
-        position: 'fixed',
-        zIndex: 50,
-      }}
+      style={getPositionStyles()}
     >
       <Popover className="relative">
         <Popover.Panel className={`${panelPositionClass} ${panelAlignmentClass}`}>

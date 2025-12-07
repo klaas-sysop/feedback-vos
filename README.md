@@ -131,7 +131,7 @@ When feedback is submitted:
 
 ### Widget Not Visible
 
-If the widget is not showing up, check the following:
+The widget uses inline styles to ensure it's always visible, even with CSS conflicts. If the widget is still not showing up, check the following:
 
 1. **Verify the client component wrapper is created correctly:**
    - Ensure `'use client'` directive is at the top of your `FeedbackWidget.tsx`
@@ -150,7 +150,16 @@ If the widget is not showing up, check the following:
    - The widget uses `z-50` for positioning - ensure no other styles override this
    - Verify Tailwind CSS is properly configured in your project
    - **CRITICAL:** The widget requires `brand` colors in your Tailwind config (see Requirements section below)
-   - **Widget outside viewport:** If the widget appears outside the screen, check for parent containers with `transform`, `perspective`, `filter`, or `overflow: hidden` that can break `fixed` positioning. Ensure the widget is placed directly in `<body>` in your layout.
+   - **Widget outside viewport or not visible:** If the widget appears outside the screen or is not visible, add this CSS to your global stylesheet (e.g., `globals.css`):
+     ```css
+     [data-feedback-widget="true"] {
+       position: fixed !important;
+       bottom: 1rem !important;
+       right: 1rem !important;
+       z-index: 9999 !important;
+     }
+     ```
+     This ensures the widget is always visible regardless of CSS conflicts or parent container transforms.
 
 5. **Debug in browser console:**
    ```javascript
