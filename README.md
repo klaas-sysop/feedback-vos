@@ -58,9 +58,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
    NEXT_PUBLIC_FEEDBACK_POSITION=bottom-right  # optional: bottom-left, top-right, top-left
    NEXT_PUBLIC_FEEDBACK_LANG=nl  # optional: 'nl' for Dutch, 'en' for English (default)
    NEXT_PUBLIC_FEEDBACK_THEME=light
+   NEXT_PUBLIC_FEEDBACK_ENABLED=true  # optional: set to 'false' to disable widget (default: 'true')
    ```
 
 **Important:** `owner` and `repo` are case-sensitive. Ensure Issues are enabled in your repository.
+
+### Environment-Specific Configuration
+
+You can control widget visibility per environment using `NEXT_PUBLIC_FEEDBACK_ENABLED`:
+
+```env
+# Production - disable widget
+NEXT_PUBLIC_FEEDBACK_ENABLED=false
+
+# Staging - enable widget
+NEXT_PUBLIC_FEEDBACK_ENABLED=true
+```
+
+**Note:** The widget is enabled by default if `NEXT_PUBLIC_FEEDBACK_ENABLED` is not set, ensuring backward compatibility.
 
 ## API Reference
 

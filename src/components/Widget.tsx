@@ -15,6 +15,17 @@ function getDefaultLanguage(): 'en' | 'nl' {
   return 'en';
 }
 
+function isWidgetEnabled(): boolean {
+  // Check environment variable to enable/disable widget
+  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_FEEDBACK_ENABLED !== undefined) {
+    const enabled = process.env.NEXT_PUBLIC_FEEDBACK_ENABLED.toLowerCase();
+    // Disable only if explicitly set to 'false' or '0'
+    return enabled !== 'false' && enabled !== '0';
+  }
+  // Default to enabled for backward compatibility
+  return true;
+}
+
 export function Widget({ 
   integration, 
   githubConfig,
@@ -22,6 +33,11 @@ export function Widget({
   language,
   theme,
 }: WidgetProps) {
+  // Check if widget should be enabled
+  if (!isWidgetEnabled()) {
+    return null;
+  }
+
   const finalLanguage = language || getDefaultLanguage();
   const finalTheme = theme || getDefaultTheme();
   const t = getTranslations(finalLanguage);

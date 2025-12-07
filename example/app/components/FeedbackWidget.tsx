@@ -3,6 +3,9 @@
 import { Widget } from '../../../src/components/Widget'
 
 export function FeedbackWidget() {
+  // Widget will automatically check NEXT_PUBLIC_FEEDBACK_ENABLED internally
+  // If not set or set to 'true', widget is shown
+  // If set to 'false', widget is hidden
   return (
     <Widget
       integration="github"
