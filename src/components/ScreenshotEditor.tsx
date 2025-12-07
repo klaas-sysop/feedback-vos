@@ -163,9 +163,27 @@ export function ScreenshotEditor({
     onSave(editedScreenshot);
   };
 
-  // Calculate canvas display size (max 600px width, maintain aspect ratio)
-  const maxWidth = 600;
-  const displayWidth = image ? Math.min(maxWidth, image.width) : maxWidth;
+  // Calculate canvas display size (responsive: 600px on mobile, larger on desktop, maintain aspect ratio)
+  const [maxDisplayWidth, setMaxDisplayWidth] = useState(600);
+  
+  useEffect(() => {
+    const updateMaxWidth = () => {
+      // On desktop (md breakpoint and up), use larger size
+      if (window.innerWidth >= 768) {
+        // Use 90% of viewport width minus padding, but at least 1200px if screen is large enough
+        const availableWidth = window.innerWidth * 0.9 - 64; // 64px for padding
+        setMaxDisplayWidth(Math.max(1200, Math.min(availableWidth, 1600)));
+      } else {
+        setMaxDisplayWidth(600);
+      }
+    };
+    
+    updateMaxWidth();
+    window.addEventListener('resize', updateMaxWidth);
+    return () => window.removeEventListener('resize', updateMaxWidth);
+  }, []);
+  
+  const displayWidth = image ? Math.min(maxDisplayWidth, image.width) : maxDisplayWidth;
   const displayHeight = image ? (displayWidth / image.width) * image.height : 400;
 
   return (

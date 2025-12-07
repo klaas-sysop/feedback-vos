@@ -30,15 +30,19 @@ export function ScreenshotButton({
   async function handleTakeScreenshot() {
     setIsTakenScreenShot(true);
     // Capture only the viewport (visible area), not the entire page
-    const canvas = await html2canvas(document.documentElement, {
+    // Use document.body instead of document.documentElement for better viewport capture
+    const canvas = await html2canvas(document.body, {
       width: window.innerWidth,
       height: window.innerHeight,
-      x: 0,
-      y: 0,
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
       scale: 1, // Use scale 1 for consistent sizing
       useCORS: true,
+      allowTaint: true, // Allow external images for better rendering
+      backgroundColor: null, // Preserve page background
+      removeContainer: false, // Maintain proper container rendering
       logging: false,
       ignoreElements: (element) => {
         // Exclude the feedback widget from screenshots
