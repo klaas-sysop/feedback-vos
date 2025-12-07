@@ -2,6 +2,8 @@
 
 import { Paperclip, X } from 'phosphor-react';
 import { useRef, useState, useEffect } from 'react';
+import { Theme } from '../types';
+import { getThemeClasses } from '../lib/theme';
 
 export interface UploadedFile {
   file: File;
@@ -16,6 +18,7 @@ interface FileUploadButtonProps {
   maxTotalSize?: number; // in bytes, default 20MB
   acceptedTypes?: string; // e.g., "image/*,.pdf,.doc,.docx"
   language?: 'en' | 'nl';
+  theme?: Theme;
 }
 
 const DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -28,9 +31,11 @@ export function FileUploadButton({
   maxTotalSize = DEFAULT_MAX_TOTAL_SIZE,
   acceptedTypes = 'image/*,.pdf,.doc,.docx,.txt',
   language = 'en',
+  theme = 'dark',
 }: FileUploadButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const themeClasses = getThemeClasses(theme);
 
   const translations = {
     en: {
@@ -137,13 +142,13 @@ export function FileUploadButton({
       <div className="flex items-center gap-2 flex-wrap">
         <button
           type="button"
-          className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+          className={`p-2 ${themeClasses.bgSecondary} rounded-md border-transparent ${themeClasses.bgHoverSecondary}
              transitions-colors focus:outline-none focus:ring-2
-             focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+             focus:ring-offset-2 ${themeClasses.focusRingOffset} focus:ring-brand-500`}
           onClick={handleButtonClick}
           title={t.upload}
         >
-          <Paperclip weight="bold" className="w-6 h-6" />
+          <Paperclip weight="bold" className={`w-6 h-6 ${themeClasses.iconColor}`} />
         </button>
         
         <input
@@ -158,7 +163,7 @@ export function FileUploadButton({
         {files.map((uploadedFile) => (
           <div
             key={uploadedFile.id}
-            className="flex items-center gap-1 bg-zinc-800 rounded-md px-2 py-1 text-xs"
+            className={`flex items-center gap-1 ${themeClasses.bgSecondary} rounded-md px-2 py-1 text-xs`}
           >
             {uploadedFile.preview ? (
               <img
@@ -167,15 +172,15 @@ export function FileUploadButton({
                 className="w-5 h-5 md:w-6 md:h-6 object-cover rounded flex-shrink-0"
               />
             ) : (
-              <Paperclip className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+              <Paperclip className={`w-3 h-3 md:w-4 md:h-4 flex-shrink-0 ${themeClasses.iconColor}`} />
             )}
-            <span className="text-zinc-300 max-w-[80px] md:max-w-[100px] truncate" title={uploadedFile.file.name}>
+            <span className={`${themeClasses.textSecondary} max-w-[80px] md:max-w-[100px] truncate`} title={uploadedFile.file.name}>
               {uploadedFile.file.name}
             </span>
             <button
               type="button"
               onClick={() => handleRemoveFile(uploadedFile.id)}
-              className="text-zinc-400 hover:text-zinc-100 transition-colors flex-shrink-0 touch-manipulation"
+              className={`${themeClasses.textTertiary} ${theme === 'dark' ? 'hover:text-zinc-100' : 'hover:text-gray-900'} transition-colors flex-shrink-0 touch-manipulation`}
               title={t.remove}
             >
               <X weight="bold" className="w-3 h-3 md:w-4 md:h-4" />
@@ -189,7 +194,7 @@ export function FileUploadButton({
       )}
       
       {files.length > 0 && (
-        <p className="text-xs text-zinc-400">
+        <p className={`text-xs ${themeClasses.textTertiary}`}>
           {files.length} {t.files} ({formatFileSize(files.reduce((sum, f) => sum + f.file.size, 0))} / {formatFileSize(maxTotalSize)})
         </p>
       )}

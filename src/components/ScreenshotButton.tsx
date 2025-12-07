@@ -6,21 +6,26 @@ import { useState } from 'react';
 import { Loading } from './Loading';
 import { ScreenshotEditor } from './ScreenshotEditor';
 import { Language } from '../lib/translations';
+import { Theme } from '../types';
+import { getThemeClasses } from '../lib/theme';
 
 interface ScreenshotButtonProps {
   screenshot: string | null;
   onScreenshotTook: (screenshot: string | null) => void;
   language?: Language;
+  theme?: Theme;
 }
 
 export function ScreenshotButton({
   screenshot,
   onScreenshotTook,
   language = 'en',
+  theme = 'dark',
 }: ScreenshotButtonProps) {
   const [isTakenScreenshot, setIsTakenScreenShot] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [tempScreenshot, setTempScreenshot] = useState<string | null>(null);
+  const themeClasses = getThemeClasses(theme);
   
   async function handleTakeScreenshot() {
     setIsTakenScreenShot(true);
@@ -62,13 +67,14 @@ export function ScreenshotButton({
           onSave={handleEditorSave}
           onCancel={handleEditorCancel}
           language={language}
+          theme={theme}
         />
         {screenshot ? (
           <div className="flex items-center gap-2">
             <div className="relative group">
               <div
-                className="p-1 w-10 h-10 rounded-md border border-zinc-600 flex 
-                        justify-end items-end relative overflow-hidden"
+                className={`p-1 w-10 h-10 rounded-md border ${themeClasses.borderSecondary} flex 
+                        justify-end items-end relative overflow-hidden`}
                 style={{
                   backgroundImage: `url(${screenshot})`,
                   backgroundPosition: 'center',
@@ -92,23 +98,23 @@ export function ScreenshotButton({
             <button
               type="button"
               onClick={handleEditScreenshot}
-              className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+              className={`p-2 ${themeClasses.bgSecondary} rounded-md border-transparent ${themeClasses.bgHoverSecondary}
                  transition-colors focus:outline-none focus:ring-2
-                 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+                 focus:ring-offset-2 ${themeClasses.focusRingOffset} focus:ring-brand-500`}
               title={language === 'nl' ? 'Bewerk screenshot' : 'Edit screenshot'}
             >
-              <PencilSimple weight="bold" className="w-5 h-5 text-zinc-100" />
+              <PencilSimple weight="bold" className={`w-5 h-5 ${themeClasses.textPrimary}`} />
             </button>
           </div>
         ) : (
           <button
             type="button"
-            className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+            className={`p-2 ${themeClasses.bgSecondary} rounded-md border-transparent ${themeClasses.bgHoverSecondary}
                transition-colors focus:outline-none focus:ring-2
-               focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+               focus:ring-offset-2 ${themeClasses.focusRingOffset} focus:ring-brand-500`}
             onClick={handleTakeScreenshot}
           >
-            {isTakenScreenshot ? <Loading /> : <Camera weight="bold" className="w-6 h-6" />}
+            {isTakenScreenshot ? <Loading /> : <Camera weight="bold" className={`w-6 h-6 ${themeClasses.iconColor}`} />}
           </button>
         )}
       </>
@@ -120,8 +126,8 @@ export function ScreenshotButton({
       <div className="flex items-center gap-2">
         <div className="relative group">
           <div
-            className="p-1 w-10 h-10 rounded-md border border-zinc-600 flex 
-                    justify-end items-end relative overflow-hidden"
+            className={`p-1 w-10 h-10 rounded-md border ${themeClasses.borderSecondary} flex 
+                    justify-end items-end relative overflow-hidden`}
             style={{
               backgroundImage: `url(${screenshot})`,
               backgroundPosition: 'center',
@@ -145,12 +151,12 @@ export function ScreenshotButton({
         <button
           type="button"
           onClick={handleEditScreenshot}
-          className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+          className={`p-2 ${themeClasses.bgSecondary} rounded-md border-transparent ${themeClasses.bgHoverSecondary}
              transition-colors focus:outline-none focus:ring-2
-             focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+             focus:ring-offset-2 ${themeClasses.focusRingOffset} focus:ring-brand-500`}
           title={language === 'nl' ? 'Bewerk screenshot' : 'Edit screenshot'}
         >
-          <PencilSimple weight="bold" className="w-5 h-5 text-zinc-100" />
+          <PencilSimple weight="bold" className={`w-5 h-5 ${themeClasses.textPrimary}`} />
         </button>
       </div>
     )
@@ -159,12 +165,12 @@ export function ScreenshotButton({
   return (
     <button
       type="button"
-      className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+      className={`p-2 ${themeClasses.bgSecondary} rounded-md border-transparent ${themeClasses.bgHoverSecondary}
          transitions-colors focus:outline-none focus:ring-2
-         focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+         focus:ring-offset-2 ${themeClasses.focusRingOffset} focus:ring-brand-500`}
       onClick={handleTakeScreenshot}
     >
-      {isTakenScreenshot ? <Loading /> : <Camera weight="bold" className="w-6 h-6" />}
+      {isTakenScreenshot ? <Loading /> : <Camera weight="bold" className={`w-6 h-6 ${themeClasses.iconColor}`} />}
     </button>
   )
 }

@@ -5,6 +5,7 @@ import { Popover } from '@headlessui/react';
 import { WidgetForm } from './WidgetForm';
 import { WidgetProps } from '../types';
 import { getTranslations } from '../lib/translations';
+import { getDefaultTheme } from '../lib/theme';
 
 function getDefaultLanguage(): 'en' | 'nl' {
   // Check environment variable (works in Next.js client-side)
@@ -19,8 +20,10 @@ export function Widget({
   githubConfig,
   position = 'bottom-right',
   language,
+  theme,
 }: WidgetProps) {
   const finalLanguage = language || getDefaultLanguage();
+  const finalTheme = theme || getDefaultTheme();
   const t = getTranslations(finalLanguage);
   const positionClasses = {
     'bottom-right': 'bottom-4 right-4 md:bottom-8 md:right-8',
@@ -48,6 +51,7 @@ export function Widget({
             integration={integration}
             githubConfig={githubConfig}
             language={finalLanguage}
+            theme={finalTheme}
           />
         </Popover.Panel>
         <Popover.Button className="bg-brand-500 rounded-full px-3 md:px-3 h-12 text-white flex items-center group focus:outline-none shadow-lg hover:shadow-xl transition-shadow">

@@ -1,4 +1,5 @@
 export type FeedbackType = 'BUG' | 'IDEA' | 'OTHER';
+export type Theme = 'light' | 'dark';
 
 export interface GitHubConfig {
   token: string;
@@ -12,5 +13,6 @@ export interface WidgetProps {
   githubConfig: GitHubConfig;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   language?: 'en' | 'nl';
+  theme?: Theme;
 }
 
