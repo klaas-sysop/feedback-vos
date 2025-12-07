@@ -116,6 +116,7 @@ export function FeedbackContentStep({
           <ScreenshotButton
             screenshot={screenshot}
             onScreenshotTook={setScreenshot}
+            language={language}
           />
           <button
             type="submit"
