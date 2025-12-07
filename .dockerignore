@@ -6,6 +6,9 @@ dist
 .env
 .env.local
 .env*.local
+# Allow .env files in example directory for Docker builds
+!example/.env
+!example/.env.production
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
