@@ -9,7 +9,7 @@ export function CloseButton({ className = "", title = "Close feedback form", the
     const themeClasses = getThemeClasses(theme);
     return (
         <Popover.Button className={`${themeClasses.textTertiary} ${theme === 'dark' ? 'hover:text-zinc-100' : 'hover:text-gray-900'} ${className}`} title={title}>
-            <X weight="bold" className="w-4 h-4"/>
+            <X weight="bold" className="w-5 h-5"/>
         </Popover.Button>
     )
 }

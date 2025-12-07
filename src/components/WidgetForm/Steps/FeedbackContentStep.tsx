@@ -81,16 +81,16 @@ export function FeedbackContentStep({
   
   return (
     <>
-      <header className="relative w-full pr-8 md:pr-8">
+      <header className="relative w-full">
         <button
           type="button"
-          className={`absolute top-3 md:top-5 left-3 md:left-5 ${themeClasses.textTertiary} ${theme === 'dark' ? 'hover:text-zinc-100' : 'hover:text-gray-900'} z-10 p-1`}
+          className={`absolute top-0 left-0 ${themeClasses.textTertiary} ${theme === 'dark' ? 'hover:text-zinc-100' : 'hover:text-gray-900'} z-10 p-2 md:p-2.5`}
           onClick={onFeedbackRestartRequest}
         >
-          <ArrowLeft weight="bold" className="w-4 h-4 md:w-4 md:h-4" />
+          <ArrowLeft weight="bold" className="w-5 h-5 md:w-5 md:h-5" />
         </button>
 
-        <span className={`text-lg md:text-xl leading-6 flex items-center gap-2 mt-2 pl-8 md:pl-10 ${themeClasses.textPrimary}`}>
+        <span className={`text-lg md:text-xl leading-6 flex items-center gap-2 pl-10 md:pl-12 pr-10 md:pr-12 ${themeClasses.textPrimary}`}>
           <img
             src={feedbackTypeData.image.source}
             alt={feedbackTypeData.image.alt}
@@ -98,7 +98,7 @@ export function FeedbackContentStep({
           />
           {feedbackTypeData.title}
         </span>
-        <CloseButton className="absolute top-3 md:top-5 right-3 md:right-5" title={t.form.closeButton} theme={theme} />
+        <CloseButton className="absolute top-0 right-0 p-2 md:p-2.5" title={t.form.closeButton} theme={theme} />
       </header>
       <form onSubmit={handleSubmitFeedback} className="my-3 md:my-4 w-full">
         <textarea
