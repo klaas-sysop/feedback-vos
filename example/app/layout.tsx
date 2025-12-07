@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Feedback Vos - Example',
   description: 'Example app for testing feedback-vos widget',
+  icons: {
+    icon: '/icon.svg',
+  },
 }
 
 export default function RootLayout({

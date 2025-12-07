@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Fox head -->
+  <ellipse cx="50" cy="45" rx="30" ry="28" fill="#FF6B35" stroke="#D84315" stroke-width="1.5"/>
+  
+  <!-- Fox ears -->
+  <path d="M 25 25 L 35 15 L 45 25 Z" fill="#FF6B35" stroke="#D84315" stroke-width="1.5"/>
+  <path d="M 55 25 L 65 15 L 75 25 Z" fill="#FF6B35" stroke="#D84315" stroke-width="1.5"/>
+  
+  <!-- Inner ear -->
+  <path d="M 30 20 L 35 12 L 40 20 Z" fill="#FFB74D"/>
+  <path d="M 60 20 L 65 12 L 70 20 Z" fill="#FFB74D"/>
+  
+  <!-- White face mask -->
+  <ellipse cx="50" cy="50" rx="22" ry="20" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Eyes -->
+  <circle cx="42" cy="45" r="4" fill="#2C3E50"/>
+  <circle cx="58" cy="45" r="4" fill="#2C3E50"/>
+  <circle cx="42" cy="45" r="2" fill="#FFFFFF"/>
+  <circle cx="58" cy="45" r="2" fill="#FFFFFF"/>
+  
+  <!-- Nose -->
+  <ellipse cx="50" cy="55" rx="3" ry="2.5" fill="#2C3E50"/>
+  
+  <!-- Mouth -->
+  <path d="M 50 57 Q 45 60 42 58" stroke="#2C3E50" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M 50 57 Q 55 60 58 58" stroke="#2C3E50" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Cheek patches -->
+  <ellipse cx="35" cy="52" rx="6" ry="5" fill="#FFB74D" opacity="0.6"/>
+  <ellipse cx="65" cy="52" rx="6" ry="5" fill="#FFB74D" opacity="0.6"/>
+</svg>
