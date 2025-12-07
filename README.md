@@ -2,6 +2,12 @@
 
 A beautiful, customizable feedback widget for Next.js applications with built-in GitHub Issues integration.
 
+## Links
+
+- 📦 [NPM Package](https://www.npmjs.com/package/feedback-vos)
+- 🐙 [GitHub Repository](https://github.com/klaas-sysop/feedback-vos)
+- 🎨 [Live Demo](https://feedback.vossendesign.nl/)
+
 ## Features
 
 - 🎨 Modern and responsive design with dark/light theme support
