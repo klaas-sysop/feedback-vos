@@ -36,13 +36,16 @@ export function ScreenshotButton({
       scrollY: -window.scrollY,
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
+      scale: window.devicePixelRatio || 1, // Use device pixel ratio for better quality
+      useCORS: true, // Enable CORS for better image rendering
+      logging: false, // Disable logging for cleaner output
       ignoreElements: (element) => {
         // Exclude the feedback widget from screenshots
         return element.hasAttribute('data-feedback-widget') || 
                element.closest('[data-feedback-widget]') !== null;
       },
     });
-    const base64image = canvas.toDataURL('image/png');
+    const base64image = canvas.toDataURL('image/png', 1.0); // Use PNG with full quality initially
     onScreenshotTook(base64image);
     setIsTakenScreenShot(false);
   }

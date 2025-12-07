@@ -89,8 +89,8 @@ async function uploadScreenshotToRepo(
   screenshot: string,
   screenshotPath?: string
 ): Promise<string> {
-  // Compress screenshot first
-  const compressedScreenshot = await compressScreenshot(screenshot, 1920, 0.7);
+  // Compress screenshot first (higher quality and resolution for better appearance)
+  const compressedScreenshot = await compressScreenshot(screenshot, 2560, 0.9);
   
   // Extract base64 data from data URL (remove data:image/jpeg;base64, prefix)
   const base64Content = compressedScreenshot.includes(',') 
@@ -236,7 +236,7 @@ async function uploadScreenshotToRepo(
  * GitHub Issues have a 65536 character limit for the body
  * This function only works in browser environments
  */
-function compressScreenshot(dataUrl: string, maxWidth: number = 1920, quality: number = 0.7): Promise<string> {
+function compressScreenshot(dataUrl: string, maxWidth: number = 2560, quality: number = 0.9): Promise<string> {
   return new Promise((resolve, reject) => {
     // Check if we're in a browser environment
     if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -250,14 +250,16 @@ function compressScreenshot(dataUrl: string, maxWidth: number = 1920, quality: n
       let width = img.width;
       let height = img.height;
 
-      // Resize if too large
+      // Resize if too large (maintain aspect ratio)
       if (width > maxWidth) {
         height = (height * maxWidth) / width;
         width = maxWidth;
       }
 
-      canvas.width = width;
-      canvas.height = height;
+      // Use device pixel ratio for better quality on high-DPI displays
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) {
@@ -265,9 +267,17 @@ function compressScreenshot(dataUrl: string, maxWidth: number = 1920, quality: n
         return;
       }
 
+      // Enable high-quality image smoothing
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      // Scale context to match device pixel ratio
+      ctx.scale(dpr, dpr);
+      
+      // Draw image with better quality
       ctx.drawImage(img, 0, 0, width, height);
       
-      // Convert to JPEG with compression (smaller than PNG)
+      // Convert to JPEG with higher quality (smaller than PNG but better quality)
       const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
       resolve(compressedDataUrl);
     };
