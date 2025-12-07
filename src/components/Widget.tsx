@@ -40,9 +40,9 @@ export function Widget({
           language={finalLanguage}
         />
       </Popover.Panel>
-      <Popover.Button className="bg-brand-500 rounded-full px-3 h-12 text-white flex items-center group focus:outline-none">
-        <ChatTeardropDots className="w-6 h-6" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-linear">
+      <Popover.Button className="bg-brand-500 rounded-full px-3 md:px-3 h-12 text-white flex items-center group focus:outline-none shadow-lg hover:shadow-xl transition-shadow">
+        <ChatTeardropDots className="w-6 h-6 flex-shrink-0" />
+        <span className="max-w-0 overflow-hidden group-hover:max-w-xs md:group-hover:max-w-xs transition-all duration-500 ease-linear hidden md:block">
           <span className="pl-2"></span>
           {t.widget.button}
         </span>

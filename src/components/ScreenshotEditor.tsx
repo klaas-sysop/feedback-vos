@@ -164,61 +164,61 @@ export function ScreenshotEditor({
   const displayHeight = image ? (displayWidth / image.width) * image.height : 400;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="bg-zinc-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-        <div className="sticky top-0 bg-zinc-800 border-b border-zinc-700 p-4 flex items-center justify-between z-10">
-          <h3 className="text-lg font-semibold text-zinc-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 md:p-4">
+      <div className="bg-zinc-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] md:max-h-[90vh] overflow-auto">
+        <div className="sticky top-0 bg-zinc-800 border-b border-zinc-700 p-2 md:p-4 flex items-center justify-between z-10 gap-2">
+          <h3 className="text-base md:text-lg font-semibold text-zinc-100 truncate">
             {language === 'nl' ? 'Teken op screenshot' : 'Draw on screenshot'}
           </h3>
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2 flex-shrink-0">
             <button
               type="button"
               onClick={undo}
-              className="p-2 bg-zinc-700 hover:bg-zinc-600 rounded-md text-zinc-100 transition-colors"
+              className="p-1.5 md:p-2 bg-zinc-700 hover:bg-zinc-600 rounded-md text-zinc-100 transition-colors touch-manipulation"
               title={t.undo}
             >
-              <ArrowCounterClockwise weight="bold" className="w-5 h-5" />
+              <ArrowCounterClockwise weight="bold" className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
               type="button"
               onClick={clearCanvas}
-              className="p-2 bg-zinc-700 hover:bg-zinc-600 rounded-md text-zinc-100 transition-colors"
+              className="p-1.5 md:p-2 bg-zinc-700 hover:bg-zinc-600 rounded-md text-zinc-100 transition-colors touch-manipulation"
               title={t.clear}
             >
-              <Trash weight="bold" className="w-5 h-5" />
+              <Trash weight="bold" className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
               type="button"
               onClick={onCancel}
-              className="p-2 bg-zinc-700 hover:bg-zinc-600 rounded-md text-zinc-100 transition-colors"
+              className="p-1.5 md:p-2 bg-zinc-700 hover:bg-zinc-600 rounded-md text-zinc-100 transition-colors touch-manipulation"
               title={t.cancel}
             >
-              <X weight="bold" className="w-5 h-5" />
+              <X weight="bold" className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="p-2 bg-brand-500 hover:bg-brand-400 rounded-md text-zinc-100 transition-colors"
+              className="p-1.5 md:p-2 bg-brand-500 hover:bg-brand-400 rounded-md text-zinc-100 transition-colors touch-manipulation"
               title={t.save}
             >
-              <Check weight="bold" className="w-5 h-5" />
+              <Check weight="bold" className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="p-3 md:p-4">
           {/* Color picker */}
-          <div className="mb-4 flex items-center gap-4">
-            <label className="text-sm text-zinc-300">
+          <div className="mb-3 md:mb-4 flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4">
+            <label className="text-xs md:text-sm text-zinc-300 whitespace-nowrap">
               {language === 'nl' ? 'Kleur:' : 'Color:'}
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 md:gap-2 flex-wrap">
               {colors.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 transition-all touch-manipulation ${
                     color === c
                       ? 'border-zinc-100 scale-110'
                       : 'border-zinc-600 hover:border-zinc-500'
@@ -231,23 +231,25 @@ export function ScreenshotEditor({
           </div>
 
           {/* Brush size */}
-          <div className="mb-4 flex items-center gap-4">
-            <label className="text-sm text-zinc-300">
+          <div className="mb-3 md:mb-4 flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4">
+            <label className="text-xs md:text-sm text-zinc-300 whitespace-nowrap">
               {language === 'nl' ? 'Grootte:' : 'Size:'}
             </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={brushSize}
-              onChange={(e) => setBrushSize(Number(e.target.value))}
-              className="flex-1 max-w-xs"
-            />
-            <span className="text-sm text-zinc-400 w-8">{brushSize}</span>
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={brushSize}
+                onChange={(e) => setBrushSize(Number(e.target.value))}
+                className="flex-1 md:flex-none md:max-w-xs"
+              />
+              <span className="text-xs md:text-sm text-zinc-400 w-6 md:w-8 text-right">{brushSize}</span>
+            </div>
           </div>
 
           {/* Canvas */}
-          <div className="flex justify-center bg-zinc-900 rounded-lg p-4 overflow-auto">
+          <div className="flex justify-center bg-zinc-900 rounded-lg p-2 md:p-4 overflow-auto">
             <canvas
               ref={canvasRef}
               onMouseDown={startDrawing}
@@ -257,12 +259,12 @@ export function ScreenshotEditor({
               onTouchStart={startDrawing}
               onTouchMove={draw}
               onTouchEnd={stopDrawing}
-              className="cursor-crosshair border border-zinc-700 rounded"
+              className="cursor-crosshair border border-zinc-700 rounded touch-none"
               style={{
                 width: `${displayWidth}px`,
                 height: `${displayHeight}px`,
                 maxWidth: '100%',
-                maxHeight: '70vh',
+                maxHeight: 'calc(95vh - 200px)',
               }}
             />
           </div>

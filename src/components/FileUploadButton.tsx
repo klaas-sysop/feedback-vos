@@ -164,21 +164,21 @@ export function FileUploadButton({
               <img
                 src={uploadedFile.preview}
                 alt={uploadedFile.file.name}
-                className="w-6 h-6 object-cover rounded"
+                className="w-5 h-5 md:w-6 md:h-6 object-cover rounded flex-shrink-0"
               />
             ) : (
-              <Paperclip className="w-4 h-4" />
+              <Paperclip className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
             )}
-            <span className="text-zinc-300 max-w-[100px] truncate" title={uploadedFile.file.name}>
+            <span className="text-zinc-300 max-w-[80px] md:max-w-[100px] truncate" title={uploadedFile.file.name}>
               {uploadedFile.file.name}
             </span>
             <button
               type="button"
               onClick={() => handleRemoveFile(uploadedFile.id)}
-              className="text-zinc-400 hover:text-zinc-100 transition-colors"
+              className="text-zinc-400 hover:text-zinc-100 transition-colors flex-shrink-0 touch-manipulation"
               title={t.remove}
             >
-              <X weight="bold" className="w-4 h-4" />
+              <X weight="bold" className="w-3 h-3 md:w-4 md:h-4" />
             </button>
           </div>
         ))}

@@ -77,30 +77,30 @@ export function FeedbackContentStep({
   
   return (
     <>
-      <header className="relative w-full pr-8">
+      <header className="relative w-full pr-8 md:pr-8">
         <button
           type="button"
-          className="absolute top-5 left-5 text-zinc-400 hover:text-zinc-100 z-10"
+          className="absolute top-3 md:top-5 left-3 md:left-5 text-zinc-400 hover:text-zinc-100 z-10 p-1"
           onClick={onFeedbackRestartRequest}
         >
-          <ArrowLeft weight="bold" className="w-4 h-4" />
+          <ArrowLeft weight="bold" className="w-4 h-4 md:w-4 md:h-4" />
         </button>
 
-        <span className="text-xl leading-6 flex items-center gap-2 mt-2 pl-10">
+        <span className="text-lg md:text-xl leading-6 flex items-center gap-2 mt-2 pl-8 md:pl-10">
           <img
             src={feedbackTypeData.image.source}
             alt={feedbackTypeData.image.alt}
-            className="w-6 h-6"
+            className="w-5 h-5 md:w-6 md:h-6"
           />
           {feedbackTypeData.title}
         </span>
-        <CloseButton className="absolute top-5 right-5" title={t.form.closeButton} />
+        <CloseButton className="absolute top-3 md:top-5 right-3 md:right-5" title={t.form.closeButton} />
       </header>
-      <form onSubmit={handleSubmitFeedback} className="my-4 w-full">
+      <form onSubmit={handleSubmitFeedback} className="my-3 md:my-4 w-full">
         <textarea
-          className="min-w-[384px] w-full min-h-[112px] text-sm 
-        placeholder-zinc-400 text-zinc-100 border-zinc-600 bg-transparent rounded-md 
-        focus:border-brand-500 focus:ring-brand-500 focus:ring-1  resize-none focus:outline-none
+          className="w-full min-h-[100px] md:min-h-[112px] text-sm 
+        placeholder-zinc-400 text-zinc-100 border border-zinc-600 bg-transparent rounded-md p-2 md:p-3
+        focus:border-brand-500 focus:ring-brand-500 focus:ring-1 resize-none focus:outline-none
           scrollbar-thumb-zinc-700 scrollbar-track-transparent scrollbar-thin"
           placeholder={t.content.placeholder}
           onChange={(e) => setComment(e.target.value)}
@@ -112,7 +112,7 @@ export function FeedbackContentStep({
             language={language}
           />
         </div>
-        <footer className=" flex gap-2 mt-2">
+        <footer className="flex gap-2 mt-3">
           <ScreenshotButton
             screenshot={screenshot}
             onScreenshotTook={setScreenshot}
@@ -125,7 +125,7 @@ export function FeedbackContentStep({
           items-center text-sm hover:bg-brand-300 focus:outline-none focus:ring-2
            focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500
            transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-           disabled:hover:bg-brand-500"
+           disabled:hover:bg-brand-500 flex"
           >
            {isSendingFeedback? <Loading/> :  t.content.sendButton}
           </button>
