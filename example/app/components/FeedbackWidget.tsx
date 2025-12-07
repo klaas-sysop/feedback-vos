@@ -2,12 +2,12 @@
 
 
 // For local development, use relative imports
-//import '../../../src/styles.css'
-//import { Widget } from '../../../src/components/Widget'
+import '../../../src/styles.css'
+import { Widget } from '../../../src/components/Widget'
 
 // For production, use:
-import { Widget } from 'feedback-vos'
-import 'feedback-vos/styles'
+//import { Widget } from 'feedback-vos'
+//import 'feedback-vos/styles'
 
 
 export function FeedbackWidget() {

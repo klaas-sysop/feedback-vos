@@ -56,7 +56,7 @@ export function WidgetForm({ integration, githubConfig, language, theme }: Widge
   }
   
   return (
-    <div className={`${themeClasses.bgPrimary} p-3 md:p-4 relative rounded-2xl mb-4 flex flex-col items-center shadow-lg w-[calc(100vw-2rem)] md:w-auto md:min-w-[384px] max-w-md`}>
+    <div className={`${themeClasses.bgPrimary} p-3 md:p-4 relative rounded-2xl mb-4 flex flex-col items-center ${theme === 'light' ? 'shadow-xl border border-gray-200' : 'shadow-lg'} w-[calc(100vw-2rem)] md:w-auto md:min-w-[384px] max-w-md`}>
       {feedbackSent ? (
         <FeedbackSuccessStep onFeedbackRestartRequest={handleRestartFeedback} language={language} theme={theme} />
       ) : (

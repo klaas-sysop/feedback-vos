@@ -81,7 +81,7 @@ export function FeedbackContentStep({
   
   return (
     <>
-      <header className="relative w-full">
+      <header className={`relative w-full ${theme === 'light' ? 'pb-3 mb-3 border-b border-gray-200' : 'pb-2 mb-2'}`}>
         <button
           type="button"
           className={`absolute top-0 left-0 ${themeClasses.textTertiary} ${theme === 'dark' ? 'hover:text-zinc-100' : 'hover:text-gray-900'} z-10 p-2 md:p-2.5`}
@@ -90,7 +90,7 @@ export function FeedbackContentStep({
           <ArrowLeft weight="bold" className="w-5 h-5 md:w-5 md:h-5" />
         </button>
 
-        <span className={`text-lg md:text-xl leading-6 flex items-center gap-2 pl-10 md:pl-12 pr-10 md:pr-12 ${themeClasses.textPrimary}`}>
+        <span className={`text-lg md:text-xl leading-6 flex items-center gap-2 pl-10 md:pl-12 pr-10 md:pr-12 font-semibold ${themeClasses.textPrimary}`}>
           <img
             src={feedbackTypeData.image.source}
             alt={feedbackTypeData.image.alt}
@@ -103,10 +103,10 @@ export function FeedbackContentStep({
       <form onSubmit={handleSubmitFeedback} className="my-3 md:my-4 w-full">
         <textarea
           className={`w-full min-h-[100px] md:min-h-[112px] text-sm 
-        ${themeClasses.textPrimary} border-2 border-brand-500 bg-transparent rounded-md p-2 md:p-3
+        ${themeClasses.textPrimary} border-2 ${theme === 'light' ? 'border-gray-300' : 'border-brand-500'} ${theme === 'light' ? 'bg-gray-50' : 'bg-transparent'} rounded-md p-2 md:p-3
         ${theme === 'dark' ? 'placeholder:text-zinc-400' : 'placeholder:text-gray-500'}
         focus:border-brand-500 focus:ring-brand-500 focus:ring-1 resize-none focus:outline-none
-          ${theme === 'dark' ? 'scrollbar-thumb-zinc-700' : 'scrollbar-thumb-gray-400'} scrollbar-track-transparent scrollbar-thin`}
+          ${theme === 'dark' ? 'scrollbar-thumb-zinc-700' : 'scrollbar-thumb-gray-400'} scrollbar-track-transparent scrollbar-thin transition-colors`}
           placeholder={t.content.placeholder}
           onChange={(e) => setComment(e.target.value)}
         />
