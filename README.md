@@ -7,7 +7,7 @@ A beautiful, customizable feedback widget for Next.js applications with built-in
 - 🎨 Modern and responsive design with dark/light theme support
 - 📸 Screenshot functionality
 - 🎯 Three feedback types: Bug, Idea, Other
-- ⚡ Built for Next.js 14+ (App Router)
+- ⚡ Built for Next.js 14+ and 16+ (App Router)
 - 🔌 Automatic GitHub Issues creation
 
 ## Installation
@@ -111,7 +111,7 @@ When feedback is submitted:
 
 ## Requirements
 
-- Next.js 14+
+- Next.js 14+ or 16+
 - React 18+
 - Tailwind CSS
 
