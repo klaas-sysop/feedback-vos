@@ -51,9 +51,10 @@ export function ScreenshotButton({
       },
     });
     
-    // Normalize to 1920x1080 standard desktop resolution
-    const targetWidth = 1920;
-    const targetHeight = 1080;
+    // Normalize to responsive resolution: mobile (1080x1920) or desktop (1920x1080)
+    const isMobile = window.innerWidth < 768;
+    const targetWidth = isMobile ? 1080 : 1920;
+    const targetHeight = isMobile ? 1920 : 1080;
     
     // Create a new canvas with the target dimensions
     const normalizedCanvas = document.createElement('canvas');
