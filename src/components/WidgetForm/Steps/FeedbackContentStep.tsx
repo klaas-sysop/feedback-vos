@@ -103,7 +103,7 @@ export function FeedbackContentStep({
       <form onSubmit={handleSubmitFeedback} className="my-3 md:my-4 w-full">
         <textarea
           className={`w-full min-h-[100px] md:min-h-[112px] text-sm 
-        ${themeClasses.textPrimary} ${themeClasses.borderSecondary} bg-transparent rounded-md p-2 md:p-3
+        ${themeClasses.textPrimary} border-2 border-brand-500 bg-transparent rounded-md p-2 md:p-3
         ${theme === 'dark' ? 'placeholder:text-zinc-400' : 'placeholder:text-gray-500'}
         focus:border-brand-500 focus:ring-brand-500 focus:ring-1 resize-none focus:outline-none
           ${theme === 'dark' ? 'scrollbar-thumb-zinc-700' : 'scrollbar-thumb-gray-400'} scrollbar-track-transparent scrollbar-thin`}
