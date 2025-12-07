@@ -1,6 +1,3 @@
-# Copy .env file to example directory
-COPY .env ./example/.env
-
 # Use Node.js LTS version
 FROM node:20-alpine AS base
 
@@ -29,6 +26,10 @@ COPY --from=deps /app/example/node_modules ./example/node_modules
 
 # Copy source files
 COPY . .
+
+# Copy .env file from root to example directory if it exists
+# Dokploy injects env variables in root, but Next.js needs them in example/.env.local
+RUN if [ -f .env ]; then cp .env ./example/.env.local; fi
 
 # Build the root package
 WORKDIR /app
