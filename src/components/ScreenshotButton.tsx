@@ -1,7 +1,7 @@
 'use client'
 
 import html2canvas from 'html2canvas';
-import { Camera, Trash, X } from 'phosphor-react';
+import { Camera, Trash, X, PencilSimple } from 'phosphor-react';
 import { useState } from 'react';
 import { Loading } from './Loading';
 import { ScreenshotEditor } from './ScreenshotEditor';
@@ -32,8 +32,7 @@ export function ScreenshotButton({
       },
     });
     const base64image = canvas.toDataURL('image/png');
-    setTempScreenshot(base64image);
-    setShowEditor(true);
+    onScreenshotTook(base64image);
     setIsTakenScreenShot(false);
   }
 
@@ -64,25 +63,48 @@ export function ScreenshotButton({
           onCancel={handleEditorCancel}
           language={language}
         />
-        {screenshot && !tempScreenshot ? (
-          <button
-            type="button"
-            className="p-1 w-10 h-10 rounded-md border-transparent flex 
-                    justify-end items-end text-zinc-400 hover:text-zinc-100 transition-colors"
-            onClick={() => onScreenshotTook(null)}
-            style={{
-              backgroundImage: `url(${screenshot})`,
-              backgroundPosition: 'right bottom',
-              backgroundSize: 180,
-            }}
-          >
-            <Trash weight="fill" />
-          </button>
+        {screenshot ? (
+          <div className="flex items-center gap-2">
+            <div className="relative group">
+              <div
+                className="p-1 w-10 h-10 rounded-md border border-zinc-600 flex 
+                        justify-end items-end relative overflow-hidden"
+                style={{
+                  backgroundImage: `url(${screenshot})`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover',
+                }}
+              >
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onScreenshotTook(null);
+                }}
+                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                title={language === 'nl' ? 'Verwijderen' : 'Delete'}
+              >
+                <X weight="bold" className="w-3 h-3 text-white" />
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={handleEditScreenshot}
+              className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+                 transition-colors focus:outline-none focus:ring-2
+                 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+              title={language === 'nl' ? 'Bewerk screenshot' : 'Edit screenshot'}
+            >
+              <PencilSimple weight="bold" className="w-5 h-5 text-zinc-100" />
+            </button>
+          </div>
         ) : (
           <button
             type="button"
             className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
-               transitions-colors focus:outline-none focus:ring-2
+               transition-colors focus:outline-none focus:ring-2
                focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
             onClick={handleTakeScreenshot}
           >
@@ -95,31 +117,40 @@ export function ScreenshotButton({
 
   if (screenshot) {
     return (
-      <div className="relative group">
+      <div className="flex items-center gap-2">
+        <div className="relative group">
+          <div
+            className="p-1 w-10 h-10 rounded-md border border-zinc-600 flex 
+                    justify-end items-end relative overflow-hidden"
+            style={{
+              backgroundImage: `url(${screenshot})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+            }}
+          >
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onScreenshotTook(null);
+            }}
+            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            title={language === 'nl' ? 'Verwijderen' : 'Delete'}
+          >
+            <X weight="bold" className="w-3 h-3 text-white" />
+          </button>
+        </div>
         <button
           type="button"
-          className="p-1 w-10 h-10 rounded-md border-transparent flex 
-                  justify-end items-end text-zinc-400 hover:text-zinc-100 transition-colors relative"
           onClick={handleEditScreenshot}
-          style={{
-            backgroundImage: `url(${screenshot})`,
-            backgroundPosition: 'right bottom',
-            backgroundSize: 180,
-          }}
-          title={language === 'nl' ? 'Klik om te bewerken' : 'Click to edit'}
+          className="p-2 bg-zinc-800 rounded-md border-transparent hover:bg-zinc-700
+             transition-colors focus:outline-none focus:ring-2
+             focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500"
+          title={language === 'nl' ? 'Bewerk screenshot' : 'Edit screenshot'}
         >
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-md" />
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onScreenshotTook(null);
-          }}
-          className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          title={language === 'nl' ? 'Verwijderen' : 'Delete'}
-        >
-          <X weight="bold" className="w-3 h-3 text-white" />
+          <PencilSimple weight="bold" className="w-5 h-5 text-zinc-100" />
         </button>
       </div>
     )
