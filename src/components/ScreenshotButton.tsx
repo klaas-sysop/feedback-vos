@@ -29,23 +29,72 @@ export function ScreenshotButton({
   
   async function handleTakeScreenshot() {
     setIsTakenScreenShot(true);
-    const canvas = await html2canvas(document.body, {
+    // Capture only the viewport (visible area), not the entire page
+    const canvas = await html2canvas(document.documentElement, {
       width: window.innerWidth,
       height: window.innerHeight,
-      scrollX: -window.scrollX,
-      scrollY: -window.scrollY,
+      x: 0,
+      y: 0,
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
-      scale: window.devicePixelRatio || 1, // Use device pixel ratio for better quality
-      useCORS: true, // Enable CORS for better image rendering
-      logging: false, // Disable logging for cleaner output
+      scale: 1, // Use scale 1 for consistent sizing
+      useCORS: true,
+      logging: false,
       ignoreElements: (element) => {
         // Exclude the feedback widget from screenshots
         return element.hasAttribute('data-feedback-widget') || 
                element.closest('[data-feedback-widget]') !== null;
       },
     });
-    const base64image = canvas.toDataURL('image/png', 1.0); // Use PNG with full quality initially
+    
+    // Normalize to 1920x1080 standard desktop resolution
+    const targetWidth = 1920;
+    const targetHeight = 1080;
+    
+    // Create a new canvas with the target dimensions
+    const normalizedCanvas = document.createElement('canvas');
+    normalizedCanvas.width = targetWidth;
+    normalizedCanvas.height = targetHeight;
+    
+    const ctx = normalizedCanvas.getContext('2d');
+    if (!ctx) {
+      setIsTakenScreenShot(false);
+      return;
+    }
+    
+    // Enable high-quality image smoothing
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    
+    // Draw the screenshot to fit 1920x1080 (maintain aspect ratio, center it)
+    const sourceAspect = canvas.width / canvas.height;
+    const targetAspect = targetWidth / targetHeight;
+    
+    let drawWidth = targetWidth;
+    let drawHeight = targetHeight;
+    let drawX = 0;
+    let drawY = 0;
+    
+    if (sourceAspect > targetAspect) {
+      // Source is wider - fit to height
+      drawHeight = targetHeight;
+      drawWidth = drawHeight * sourceAspect;
+      drawX = (targetWidth - drawWidth) / 2;
+    } else {
+      // Source is taller - fit to width
+      drawWidth = targetWidth;
+      drawHeight = drawWidth / sourceAspect;
+      drawY = (targetHeight - drawHeight) / 2;
+    }
+    
+    // Fill background with white (or you could use a color from the page)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    
+    // Draw the screenshot centered
+    ctx.drawImage(canvas, drawX, drawY, drawWidth, drawHeight);
+    
+    const base64image = normalizedCanvas.toDataURL('image/png', 1.0);
     onScreenshotTook(base64image);
     setIsTakenScreenShot(false);
   }
