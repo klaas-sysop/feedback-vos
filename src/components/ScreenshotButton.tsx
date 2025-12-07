@@ -24,7 +24,13 @@ export function ScreenshotButton({
   
   async function handleTakeScreenshot() {
     setIsTakenScreenShot(true);
-    const canvas = await html2canvas(document.querySelector('html')!);
+    const canvas = await html2canvas(document.querySelector('html')!, {
+      ignoreElements: (element) => {
+        // Exclude the feedback widget from screenshots
+        return element.hasAttribute('data-feedback-widget') || 
+               element.closest('[data-feedback-widget]') !== null;
+      },
+    });
     const base64image = canvas.toDataURL('image/png');
     setTempScreenshot(base64image);
     setShowEditor(true);

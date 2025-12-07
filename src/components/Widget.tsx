@@ -29,25 +29,36 @@ export function Widget({
     'top-left': 'top-4 left-4 md:top-8 md:left-4',
   };
 
-  const alignmentClass = position.includes('left') ? 'items-start' : 'items-end';
+  const isTop = position.includes('top');
+  const isLeft = position.includes('left');
+  
+  const panelPositionClass = isTop 
+    ? 'absolute top-full mt-2' 
+    : 'absolute bottom-full mb-2';
+  
+  const panelAlignmentClass = isLeft 
+    ? 'left-0' 
+    : 'right-0';
 
   return (
-    <Popover className={`fixed ${positionClasses[position]} flex flex-col ${alignmentClass} z-50`}>
-      <Popover.Panel>
-        <WidgetForm 
-          integration={integration}
-          githubConfig={githubConfig}
-          language={finalLanguage}
-        />
-      </Popover.Panel>
-      <Popover.Button className="bg-brand-500 rounded-full px-3 md:px-3 h-12 text-white flex items-center group focus:outline-none shadow-lg hover:shadow-xl transition-shadow">
-        <ChatTeardropDots className="w-6 h-6 flex-shrink-0" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs md:group-hover:max-w-xs transition-all duration-500 ease-linear hidden md:block">
-          <span className="pl-2"></span>
-          {t.widget.button}
-        </span>
-      </Popover.Button>
-    </Popover>
+    <div data-feedback-widget="true" className={`fixed ${positionClasses[position]} z-50`}>
+      <Popover className="relative">
+        <Popover.Panel className={`${panelPositionClass} ${panelAlignmentClass}`}>
+          <WidgetForm 
+            integration={integration}
+            githubConfig={githubConfig}
+            language={finalLanguage}
+          />
+        </Popover.Panel>
+        <Popover.Button className="bg-brand-500 rounded-full px-3 md:px-3 h-12 text-white flex items-center group focus:outline-none shadow-lg hover:shadow-xl transition-shadow">
+          <ChatTeardropDots className="w-6 h-6 flex-shrink-0" />
+          <span className="max-w-0 overflow-hidden group-hover:max-w-xs md:group-hover:max-w-xs transition-all duration-500 ease-linear hidden md:block">
+            <span className="pl-2"></span>
+            {t.widget.button}
+          </span>
+        </Popover.Button>
+      </Popover>
+    </div>
   )
 }
 
