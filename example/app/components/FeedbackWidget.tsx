@@ -1,6 +1,14 @@
 'use client'
 
-import { Widget } from '../../../src/components/Widget'
+
+// For local development, use relative imports
+//import '../../../src/styles.css'
+//import { Widget } from '../../../src/components/Widget'
+
+// For production, use:
+import { Widget } from 'feedback-vos'
+import 'feedback-vos/styles'
+
 
 export function FeedbackWidget() {
   // Widget will automatically check NEXT_PUBLIC_FEEDBACK_ENABLED internally

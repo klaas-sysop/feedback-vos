@@ -18,7 +18,7 @@ function getDefaultLanguage(): 'en' | 'nl' {
 function isWidgetEnabled(): boolean {
   // Check environment variable to enable/disable widget
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_FEEDBACK_ENABLED !== undefined) {
-    const enabled = process.env.NEXT_PUBLIC_FEEDBACK_ENABLED.toLowerCase();
+    const enabled = String(process.env.NEXT_PUBLIC_FEEDBACK_ENABLED).toLowerCase().trim();
     // Disable only if explicitly set to 'false' or '0'
     return enabled !== 'false' && enabled !== '0';
   }
@@ -60,7 +60,14 @@ export function Widget({
     : 'right-0';
 
   return (
-    <div data-feedback-widget="true" className={`fixed ${positionClasses[position]} z-50`}>
+    <div 
+      data-feedback-widget="true" 
+      className={`fixed ${positionClasses[position]} z-50`}
+      style={{
+        position: 'fixed',
+        zIndex: 50,
+      }}
+    >
       <Popover className="relative">
         <Popover.Panel className={`${panelPositionClass} ${panelAlignmentClass}`}>
           <WidgetForm 
