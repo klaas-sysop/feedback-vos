@@ -29,7 +29,13 @@ export function ScreenshotButton({
   
   async function handleTakeScreenshot() {
     setIsTakenScreenShot(true);
-    const canvas = await html2canvas(document.querySelector('html')!, {
+    const canvas = await html2canvas(document.body, {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
       ignoreElements: (element) => {
         // Exclude the feedback widget from screenshots
         return element.hasAttribute('data-feedback-widget') || 
