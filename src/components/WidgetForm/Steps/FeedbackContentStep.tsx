@@ -66,13 +66,13 @@ export function FeedbackContentStep({
       <header className="relative w-full pr-8">
         <button
           type="button"
-          className="absolute top-5 left-5 text-zinc-400 hover:text-zinc-100"
+          className="absolute top-5 left-5 text-zinc-400 hover:text-zinc-100 z-10"
           onClick={onFeedbackRestartRequest}
         >
           <ArrowLeft weight="bold" className="w-4 h-4" />
         </button>
 
-        <span className="text-xl leading-6 flex items-center gap-2 mt-2">
+        <span className="text-xl leading-6 flex items-center gap-2 mt-2 pl-10">
           <img
             src={feedbackTypeData.image.source}
             alt={feedbackTypeData.image.alt}
