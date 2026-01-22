@@ -42,7 +42,7 @@
     "next": ">=14.0.0"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.17",
+    "@headlessui/react": "^2.2.0",
     "html2canvas": "^1.4.1",
     "phosphor-react": "^1.4.1"
   },
