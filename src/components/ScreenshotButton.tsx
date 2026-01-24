@@ -50,13 +50,16 @@ export function ScreenshotButton({
           const isWidget = element.hasAttribute("data-feedback-widget") || element.closest("[data-feedback-widget]") !== null;
           if (isWidget) return true;
 
-          // 2. Ignore elements with 0 width or height to prevent crashes
-          // This fixes "InvalidStateError: ... width or height of 0"
-          if (element.tagName === 'IMG' || element.tagName === 'CANVAS' || element.tagName === 'VIDEO') {
+          // 2. Ignore ONLY 0-sized media elements (these are the crashers)
+          const tagName = element.tagName;
+          if (tagName === "IMG" || tagName === "CANVAS" || tagName === "VIDEO" || tagName === "SVG") {
             const rect = element.getBoundingClientRect();
-            if (rect.width === 0 || rect.height === 0) return true;
+            if (rect.width < 1 || rect.height < 1) {
+              console.warn("FeedbackWidget: Ignoring 0-sized media element:", tagName, element);
+              return true;
+            }
           }
-
+          // NOTE: Do NOT ignore other elements based on size, as that might hide containers!
           return false;
         },
       });
