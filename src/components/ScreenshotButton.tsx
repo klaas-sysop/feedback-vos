@@ -16,6 +16,25 @@ interface ScreenshotButtonProps {
   theme?: Theme;
 }
 
+// Safety Polyfill to prevent InvalidStateError in html2canvas
+if (typeof window !== 'undefined' && typeof CanvasRenderingContext2D !== 'undefined') {
+  const originalCreatePattern = CanvasRenderingContext2D.prototype.createPattern;
+  // @ts-ignore - Monkey patching
+  CanvasRenderingContext2D.prototype.createPattern = function (image: any, repetition: string | null) {
+    if (image instanceof HTMLCanvasElement) {
+      if (image.width === 0 || image.height === 0) {
+        // Return a 1x1 transparent canvas to prevent crash
+        const temp = document.createElement('canvas');
+        temp.width = 1;
+        temp.height = 1;
+        return originalCreatePattern.call(this, temp, repetition);
+      }
+    }
+    // @ts-ignore
+    return originalCreatePattern.apply(this, arguments as any);
+  };
+}
+
 export function ScreenshotButton({
   screenshot,
   onScreenshotTook,
@@ -56,8 +75,7 @@ export function ScreenshotButton({
             try {
               // Check Layout Size (getBoundingClientRect)
               const rect = element.getBoundingClientRect();
-              if (rect.width < 1 || rect.height < 1) {
-                // console.warn("FeedbackWidget: Ignored 0-layout element:", tagName, element);
+              if (rect.width === 0 || rect.height === 0) {
                 return true;
               }
 
@@ -65,16 +83,14 @@ export function ScreenshotButton({
               if (tagName === "CANVAS") {
                 const canvas = element as HTMLCanvasElement;
                 if (canvas.width === 0 || canvas.height === 0) {
-                  console.warn("FeedbackWidget: Ignored 0-intrinsic canvas:", element);
                   return true;
                 }
               }
 
               if (tagName === "IMG") {
                 const img = element as HTMLImageElement;
-                // Only check if loaded and has src
-                if (img.getAttribute("src") && img.naturalWidth === 0) {
-                  // console.warn("FeedbackWidget: Ignored 0-intrinsic image:", element);
+                // Only ignore if it has a src (is trying to load) and has 0 natural size
+                if (img.src && img.complete && (img.naturalWidth === 0 || img.naturalHeight === 0)) {
                   return true;
                 }
               }
@@ -82,16 +98,12 @@ export function ScreenshotButton({
               if (tagName === "VIDEO") {
                 const video = element as HTMLVideoElement;
                 if (video.readyState >= 1 && (video.videoWidth === 0 || video.videoHeight === 0)) {
-                  console.warn("FeedbackWidget: Ignored 0-intrinsic video:", element);
                   return true;
                 }
               }
 
             } catch (e) {
-              // If checking throws, safer to ignore or keep? 
-              // Usually access wouldn't throw unless maybe cross-origin issues with some props, but standard props are mostly safe.
-              // We'll proceed safely.
-              console.warn("FeedbackWidget: Error checking element dimensions, ignoring safety check for:", element, e);
+              // Ignore errors during checks
             }
           }
           // NOTE: Do NOT ignore other elements based on size, as that might hide containers!
