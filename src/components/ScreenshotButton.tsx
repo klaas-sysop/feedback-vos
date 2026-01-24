@@ -26,7 +26,7 @@ export function ScreenshotButton({
   const [showEditor, setShowEditor] = useState(false);
   const [tempScreenshot, setTempScreenshot] = useState<string | null>(null);
   const themeClasses = getThemeClasses(theme);
-  
+
   async function handleTakeScreenshot() {
     try {
       setIsTakenScreenShot(true);
@@ -46,9 +46,18 @@ export function ScreenshotButton({
         removeContainer: false, // Maintain proper container rendering
         logging: false,
         ignoreElements: (element) => {
-          // Exclude the feedback widget from screenshots
-          return element.hasAttribute('data-feedback-widget') || 
-                 element.closest('[data-feedback-widget]') !== null;
+          // 1. Ignore the widget itself
+          const isWidget = element.hasAttribute("data-feedback-widget") || element.closest("[data-feedback-widget]") !== null;
+          if (isWidget) return true;
+
+          // 2. Ignore elements with 0 width or height to prevent crashes
+          // This fixes "InvalidStateError: ... width or height of 0"
+          if (element.tagName === 'IMG' || element.tagName === 'CANVAS' || element.tagName === 'VIDEO') {
+            const rect = element.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return true;
+          }
+
+          return false;
         },
       });
 
@@ -57,35 +66,35 @@ export function ScreenshotButton({
         console.warn('Screenshot failed: Captured canvas has 0 width or height');
         return;
       }
-      
+
       // Normalize to responsive resolution: mobile (1080x1920) or desktop (1920x1080)
       const isMobile = window.innerWidth < 768;
       const targetWidth = isMobile ? 1080 : 1920;
       const targetHeight = isMobile ? 1920 : 1080;
-      
+
       // Create a new canvas with the target dimensions
       const normalizedCanvas = document.createElement('canvas');
       normalizedCanvas.width = targetWidth;
       normalizedCanvas.height = targetHeight;
-      
+
       const ctx = normalizedCanvas.getContext('2d');
       if (!ctx) {
         return;
       }
-      
+
       // Enable high-quality image smoothing
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      
+
       // Draw the screenshot to fit 1920x1080 (maintain aspect ratio, center it)
       const sourceAspect = canvas.width / canvas.height;
       const targetAspect = targetWidth / targetHeight;
-      
+
       let drawWidth = targetWidth;
       let drawHeight = targetHeight;
       let drawX = 0;
       let drawY = 0;
-      
+
       if (sourceAspect > targetAspect) {
         // Source is wider - fit to height
         drawHeight = targetHeight;
@@ -97,14 +106,14 @@ export function ScreenshotButton({
         drawHeight = drawWidth / sourceAspect;
         drawY = (targetHeight - drawHeight) / 2;
       }
-      
+
       // Fill background with white (or you could use a color from the page)
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, targetWidth, targetHeight);
-      
+
       // Draw the screenshot centered
       ctx.drawImage(canvas, drawX, drawY, drawWidth, drawHeight);
-      
+
       const base64image = normalizedCanvas.toDataURL('image/png', 1.0);
       onScreenshotTook(base64image);
     } catch (error) {
@@ -234,7 +243,7 @@ export function ScreenshotButton({
       </div>
     )
   }
-  
+
   return (
     <button
       type="button"
