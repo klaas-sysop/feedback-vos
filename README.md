@@ -13,13 +13,22 @@ A beautiful, customizable feedback widget for Next.js applications with built-in
 - 🎨 Modern and responsive design with dark/light theme support
 - 📸 Screenshot functionality
 - 🎯 Three feedback types: Bug, Idea, Other
-- ⚡ Built for Next.js 14+ and 16+ (App Router)
+- ⚡ Built for Next.js 14+ / 16+ and React 18+ (JSX/TSX compatible)
+- 📦 Zero-config styling (Tailwind not required) - styles are pre-built and isolated
 - 🔌 Automatic GitHub Issues creation
 
 ## Installation
 
 ```bash
 npm install feedback-vos
+```
+
+### 2. Import Styles
+
+Add the styles to your root layout (`app/layout.tsx`) or global CSS:
+
+```tsx
+import 'feedback-vos/styles'
 ```
 
 ## Quick Start
@@ -162,7 +171,7 @@ The widget uses inline styles to ensure it's always visible, even with CSS confl
 4. **Check for CSS conflicts:**
    - The widget uses `z-50` for positioning - ensure no other styles override this
    - Verify Tailwind CSS is properly configured in your project
-   - **CRITICAL:** The widget requires `brand` colors in your Tailwind config (see Requirements section below)
+
    - **Widget outside viewport or not visible:** If the widget appears outside the screen or is not visible, add this CSS to your global stylesheet (e.g., `globals.css`):
      ```css
      [data-feedback-widget="true"] {
@@ -189,7 +198,7 @@ The widget uses inline styles to ensure it's always visible, even with CSS confl
    - ❌ Using `.env` instead of `.env.local` for environment variables
    - ❌ Not restarting the dev server after adding environment variables
    - ❌ Importing `Widget` directly in `layout.tsx` instead of using the wrapper component
-   - ❌ **Missing `brand` colors in Tailwind config (widget button will be invisible!)**
+
 
 ### GitHub Integration Issues
 
@@ -201,31 +210,9 @@ The widget uses inline styles to ensure it's always visible, even with CSS confl
 
 - Next.js 14+ or 16+
 - React 18+ or 19+
-- Tailwind CSS
 
-### Tailwind CSS Configuration
 
-The widget uses custom brand colors. Add these to your `tailwind.config.js`:
 
-```js
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  // ... your existing config
-  theme: {
-    extend: {
-      colors: {
-        brand: {
-          300: '#E86A4A',
-          400: '#E86A4A', // Optional, for hover states
-          500: '#D4421E',
-        }
-      },
-    },
-  },
-}
-```
-
-**Important:** Without these brand colors, the widget button will not be visible!
 
 ## License
 

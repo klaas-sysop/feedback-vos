@@ -21,6 +21,12 @@
     "dev": "tsup --watch",
     "prepublishOnly": "npm run build"
   },
+  "browserslist": [
+    "defaults",
+    "> 0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "keywords": [
     "feedback",
     "widget",
