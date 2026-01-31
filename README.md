@@ -135,8 +135,15 @@ When feedback is submitted:
 
 ## Troubleshooting
 
-### Widget Not Visible
+### Using with non-Tailwind Projects
 
+This plugin is designed to be isolated and work within any project, regardless of whether it uses Tailwind CSS or not. 
+
+- **CSS Isolation:** The plugin's CSS is scoped to `[data-feedback-widget]` and does not include Tailwind's global preflight resets, so it won't affect your existing site's styles.
+- **Global Styles:** You can safely import `feedback-vos/styles` (or `dist/styles.css`) in your global CSS file or root layout without worrying about side effects.
+
+### Widget Not Visible (Troubleshooting)
+ 
 The widget uses inline styles to ensure it's always visible, even with CSS conflicts. If the widget is still not showing up, check the following:
 
 1. **Verify the client component wrapper is created correctly:**

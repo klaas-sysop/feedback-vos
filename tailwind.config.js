@@ -3,6 +3,9 @@ module.exports = {
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
   ],
+  corePlugins: {
+    preflight: false,
+  },
   important: '[data-feedback-widget]',
   theme: {
     extend: {
